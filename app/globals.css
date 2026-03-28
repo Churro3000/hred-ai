@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
   --bg: #080C14;
@@ -21,7 +21,7 @@
 body {
   background-color: #080C14;
   color: #E9EEF5;
-  font-family: 'Montserrat', system-ui, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   min-height: 100vh;
 }
 
@@ -38,8 +38,8 @@ html {
   color: #fff;
   border-radius: 8px;
   padding: 10px 24px;
-  font-weight: 600;
-  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
   transition: all 0.2s;
   border: none;
   cursor: pointer;
@@ -55,8 +55,8 @@ html {
   color: #fff;
   border-radius: 8px;
   padding: 10px 24px;
-  font-weight: 600;
-  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
   transition: all 0.2s;
   border: none;
   cursor: pointer;
@@ -80,6 +80,6 @@ html {
   margin: 0;
 }
 
-input, textarea {
-  font-family: 'Montserrat', sans-serif;
+input, textarea, button, a, p, h1, h2, h3, h4, h5, h6, span, label, li {
+  font-family: 'Nunito', sans-serif;
 }
