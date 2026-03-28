@@ -21,48 +21,51 @@ export default function SignUp() {
     <div className="min-h-screen bg-radial flex flex-col items-center justify-center px-4">
       <Link href="/" className="flex items-center gap-2 mb-10">
         <Shield className="w-6 h-6 text-[#14B8A6]" />
-        <span className="font-bold text-white text-lg" style={{fontFamily:'Space Grotesk'}}>HipaaRed <span className="text-[#14B8A6]">AI</span></span>
+        <span style={{fontFamily:'Sora, sans-serif', fontWeight:800}} className="text-white text-lg">HipaaRed <span className="text-[#14B8A6]">AI</span></span>
       </Link>
       <div className="card w-full max-w-md">
-        <h1 className="text-2xl font-bold text-white mb-1" style={{fontFamily:'Space Grotesk'}}>Create your account</h1>
-        <p className="text-[#E9EEF5]/50 text-sm mb-8">Start securing your medical AI in minutes.</p>
+        <h1 className="text-2xl font-extrabold text-white mb-1" style={{fontFamily:'Sora', letterSpacing:'-0.02em'}}>Create your account</h1>
+        <p className="text-[#E9EEF5]/45 text-sm mb-8" style={{fontFamily:'Sora'}}>Start securing your medical AI in minutes.</p>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="text-sm text-[#E9EEF5]/70 mb-1 block">Email address</label>
+            <label className="text-sm text-[#E9EEF5]/65 mb-1.5 block" style={{fontFamily:'Sora'}}>Work email address</label>
             <input
               type="email" required
-              className="w-full bg-[#0B0D10] border border-[#1F2937] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#14B8A6] transition-colors"
-              placeholder="you@hospital.com"
+              className="w-full bg-[#080C14] border border-[#1F2937] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#14B8A6] transition-colors"
+              style={{fontFamily:'Sora'}}
+              placeholder="dr.smith@memorial-health.com"
               value={form.email}
               onChange={e => setForm({ ...form, email: e.target.value })}
             />
           </div>
           <div>
-            <label className="text-sm text-[#E9EEF5]/70 mb-1 block">Password</label>
+            <label className="text-sm text-[#E9EEF5]/65 mb-1.5 block" style={{fontFamily:'Sora'}}>Password</label>
             <input
               type="password" required
-              className="w-full bg-[#0B0D10] border border-[#1F2937] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#14B8A6] transition-colors"
-              placeholder="Min 8 characters"
+              className="w-full bg-[#080C14] border border-[#1F2937] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#14B8A6] transition-colors"
+              style={{fontFamily:'Sora'}}
+              placeholder="Minimum 8 characters"
               value={form.password}
               onChange={e => setForm({ ...form, password: e.target.value })}
             />
           </div>
           <div>
-            <label className="text-sm text-[#E9EEF5]/70 mb-1 block">Confirm Password</label>
+            <label className="text-sm text-[#E9EEF5]/65 mb-1.5 block" style={{fontFamily:'Sora'}}>Confirm password</label>
             <input
               type="password" required
-              className="w-full bg-[#0B0D10] border border-[#1F2937] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#14B8A6] transition-colors"
-              placeholder="Repeat password"
+              className="w-full bg-[#080C14] border border-[#1F2937] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#14B8A6] transition-colors"
+              style={{fontFamily:'Sora'}}
+              placeholder="Repeat your password"
               value={form.confirm}
               onChange={e => setForm({ ...form, confirm: e.target.value })}
             />
           </div>
-          {error && <p className="text-red-400 text-sm">{error}</p>}
-          <button type="submit" className="btn-teal w-full py-3">Create Account</button>
+          {error && <p className="text-red-400 text-sm" style={{fontFamily:'Sora'}}>{error}</p>}
+          <button type="submit" className="btn-teal w-full py-3.5">Create Account</button>
         </form>
         <div className="mt-6 text-center space-y-2">
-          <p className="text-[#E9EEF5]/50 text-sm">Already have an account? <Link href="/signin" className="text-[#14B8A6] hover:underline">Sign In</Link></p>
-          <p><Link href="/" className="text-[#E9EEF5]/40 text-sm hover:text-[#14B8A6] transition-colors">← Back to Home</Link></p>
+          <p className="text-[#E9EEF5]/45 text-sm" style={{fontFamily:'Sora'}}>Already have an account? <Link href="/signin" className="text-[#14B8A6] hover:underline">Sign In</Link></p>
+          <p><Link href="/" className="text-[#E9EEF5]/35 text-sm hover:text-[#14B8A6] transition-colors" style={{fontFamily:'Sora'}}>← Back to Home</Link></p>
         </div>
       </div>
     </div>
