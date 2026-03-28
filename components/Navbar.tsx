@@ -8,12 +8,12 @@ export default function Navbar() {
       <div className="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 ml-1">
           <Shield className="w-6 h-6 text-[#14B8A6]" />
-          <span style={{fontFamily:'Sora, sans-serif', fontWeight:800, fontSize:'1.15rem', letterSpacing:'-0.02em'}} className="text-white">
+          <span style={{fontFamily:'Montserrat, sans-serif', fontWeight:800, fontSize:'1.15rem', letterSpacing:'-0.02em'}} className="text-white">
             HipaaRed <span className="text-[#14B8A6]">AI</span>
           </span>
         </Link>
         <div className="flex items-center gap-5 mr-1">
-          <Link href="/signin" className="text-[#E9EEF5]/80 hover:text-white text-sm font-medium transition-colors" style={{fontFamily:'Sora'}}>Sign In</Link>
+          <Link href="/signin" className="text-[#E9EEF5]/80 hover:text-white text-sm font-medium transition-colors" style={{fontFamily:'Montserrat'}}>Sign In</Link>
           <Link href="/signup">
             <button className="btn-teal text-sm px-5 py-2.5">Get Started</button>
           </Link>
