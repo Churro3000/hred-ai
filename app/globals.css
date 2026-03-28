@@ -2,9 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap');
+
 :root {
-  --bg: #0B0D10;
-  --surface: #1F2937;
+  --bg: #080C14;
+  --surface: #111827;
   --teal: #14B8A6;
   --blue: #3B82F6;
   --text: #E9EEF5;
@@ -17,9 +19,9 @@
 }
 
 body {
-  background-color: #0B0D10;
+  background-color: #080C14;
   color: #E9EEF5;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Sora', system-ui, sans-serif;
   min-height: 100vh;
 }
 
@@ -28,7 +30,7 @@ html {
 }
 
 .bg-radial {
-  background: radial-gradient(ellipse at 60% 20%, #1E2937 0%, #0B0D10 70%);
+  background: radial-gradient(ellipse at 55% 15%, #0D1F3C 0%, #080C14 65%);
 }
 
 .btn-teal {
@@ -37,43 +39,47 @@ html {
   border-radius: 8px;
   padding: 10px 24px;
   font-weight: 600;
+  font-family: 'Sora', sans-serif;
   transition: all 0.2s;
   border: none;
   cursor: pointer;
 }
 
 .btn-teal:hover {
-  box-shadow: 0 0 18px rgba(20,184,166,0.5);
+  box-shadow: 0 0 20px rgba(20,184,166,0.5);
   background: #0f9e8e;
 }
 
 .btn-blue {
-  background: #3B82F6;
+  background: #14B8A6;
   color: #fff;
   border-radius: 8px;
   padding: 10px 24px;
   font-weight: 600;
+  font-family: 'Sora', sans-serif;
   transition: all 0.2s;
   border: none;
   cursor: pointer;
 }
 
 .btn-blue:hover {
-  box-shadow: 0 0 18px rgba(59,130,246,0.5);
-  background: #2563eb;
+  box-shadow: 0 0 20px rgba(20,184,166,0.5);
+  background: #0f9e8e;
 }
 
 .card {
-  background: #1F2937;
-  border: 1px solid #14B8A6;
-  border-radius: 12px;
+  background: #111827;
+  border: 1px solid rgba(20,184,166,0.25);
+  border-radius: 14px;
   padding: 28px;
 }
 
-.gauge-bar {
-  height: 12px;
-  border-radius: 6px;
-  background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+.section-divider {
+  border: none;
+  border-top: 1px solid rgba(20,184,166,0.1);
+  margin: 0;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+input, textarea {
+  font-family: 'Sora', sans-serif;
+}
