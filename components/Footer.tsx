@@ -9,26 +9,26 @@ export default function Footer() {
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-3">
               <Shield className="w-5 h-5 text-[#14B8A6]" />
-              <span style={{fontFamily:'Montserrat, sans-serif', fontWeight:800}} className="text-white text-base">HipaaRed <span className="text-[#14B8A6]">AI</span></span>
+              <span className="text-white font-black text-base" style={{fontFamily:"'Nunito', sans-serif"}}>HipaaRed <span className="text-[#14B8A6]">AI</span></span>
             </div>
-            <p className="text-[#E9EEF5]/40 text-xs leading-relaxed" style={{fontFamily:'Montserrat'}}>
+            <p className="text-[#E9EEF5]/40 text-xs leading-relaxed" style={{fontFamily:"'Nunito', sans-serif"}}>
               Automated AI red teaming for HIPAA compliance. Built for hospitals, clinics, and health tech teams.
             </p>
           </div>
 
           <div>
-            <h4 className="text-white text-sm font-bold mb-4" style={{fontFamily:'Montserrat'}}>Legal</h4>
+            <h4 className="text-white text-sm font-black mb-4" style={{fontFamily:"'Nunito', sans-serif"}}>Legal</h4>
             <ul className="space-y-2.5">
               {['Privacy Policy', 'Terms of Service', 'BAA Template', 'Cookie Policy'].map(item => (
                 <li key={item}>
-                  <Link href="#" className="text-[#E9EEF5]/50 text-sm hover:text-[#14B8A6] transition-colors" style={{fontFamily:'Montserrat'}}>{item}</Link>
+                  <Link href="#" className="text-[#E9EEF5]/50 text-sm font-semibold hover:text-[#14B8A6] transition-colors" style={{fontFamily:"'Nunito', sans-serif"}}>{item}</Link>
                 </li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white text-sm font-bold mb-4" style={{fontFamily:'Montserrat'}}>Contact</h4>
+            <h4 className="text-white text-sm font-black mb-4" style={{fontFamily:"'Nunito', sans-serif"}}>Contact</h4>
             <ul className="space-y-2.5">
               {[
                 { label: 'hello@hipaared.ai', href: 'mailto:hello@hipaared.ai' },
@@ -36,14 +36,14 @@ export default function Footer() {
                 { label: 'Enterprise Inquiries', href: '#' },
               ].map(item => (
                 <li key={item.label}>
-                  <Link href={item.href} className="text-[#E9EEF5]/50 text-sm hover:text-[#14B8A6] transition-colors" style={{fontFamily:'Montserrat'}}>{item.label}</Link>
+                  <Link href={item.href} className="text-[#E9EEF5]/50 text-sm font-semibold hover:text-[#14B8A6] transition-colors" style={{fontFamily:"'Nunito', sans-serif"}}>{item.label}</Link>
                 </li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white text-sm font-bold mb-4" style={{fontFamily:'Montserrat'}}>Follow Us</h4>
+            <h4 className="text-white text-sm font-black mb-4" style={{fontFamily:"'Nunito', sans-serif"}}>Follow Us</h4>
             <div className="flex gap-3">
               <Link href="#" className="w-9 h-9 rounded-lg bg-[#111827] border border-[#14B8A6]/20 flex items-center justify-center hover:border-[#14B8A6] hover:bg-[#14B8A6]/10 transition-all group">
                 <svg className="w-4 h-4 text-[#E9EEF5]/50 group-hover:text-[#14B8A6] transition-colors" fill="currentColor" viewBox="0 0 24 24">
@@ -60,7 +60,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-[#14B8A6]/10 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-[#E9EEF5]/30 text-xs" style={{fontFamily:'Montserrat'}}>© 2025 HipaaRed AI Inc. All rights reserved.</p>
+          <p className="text-[#E9EEF5]/30 text-xs font-semibold" style={{fontFamily:"'Nunito', sans-serif"}}>© 2025 HipaaRed AI Inc. All rights reserved.</p>
         </div>
       </div>
     </footer>
