@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0B0D10;
+  --surface: #1F2937;
+  --teal: #14B8A6;
+  --blue: #3B82F6;
+  --text: #E9EEF5;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #0B0D10;
+  color: #E9EEF5;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.bg-radial {
+  background: radial-gradient(ellipse at 60% 20%, #1E2937 0%, #0B0D10 70%);
+}
+
+.btn-teal {
+  background: #14B8A6;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 600;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-teal:hover {
+  box-shadow: 0 0 18px rgba(20,184,166,0.5);
+  background: #0f9e8e;
+}
+
+.btn-blue {
+  background: #3B82F6;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 600;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-blue:hover {
+  box-shadow: 0 0 18px rgba(59,130,246,0.5);
+  background: #2563eb;
+}
+
+.card {
+  background: #1F2937;
+  border: 1px solid #14B8A6;
+  border-radius: 12px;
+  padding: 28px;
+}
+
+.gauge-bar {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+}
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
