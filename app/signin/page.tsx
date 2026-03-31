@@ -3,17 +3,36 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Shield } from 'lucide-react'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
 
 const F = { fontFamily: "'Nunito', sans-serif" }
 
 export default function SignIn() {
   const router = useRouter()
   const [form, setForm] = useState({ email: '', password: '' })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    localStorage.setItem('hr_user', JSON.stringify({ email: form.email, name: form.email.split('@')[0] }))
-    router.push('/dashboard')
+    setError('')
+    setLoading(true)
+    try {
+      await signInWithEmailAndPassword(auth, form.email, form.password)
+      router.push('/dashboard')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Sign in failed.'
+      if (msg.includes('user-not-found') || msg.includes('wrong-password') || msg.includes('invalid-credential')) {
+        setError('Incorrect email or password.')
+      } else if (msg.includes('too-many-requests')) {
+        setError('Too many attempts. Please wait a moment and try again.')
+      } else {
+        setError('Sign in failed. Please try again.')
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -28,30 +47,26 @@ export default function SignIn() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="text-sm text-[#E9EEF5]/65 mb-1.5 block font-bold" style={F}>Work email address</label>
-            <input
-              type="email" required
+            <input type="email" required
               className="w-full bg-[#080C14] border border-[#1F2937] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#14B8A6] transition-colors"
-              style={F}
-              placeholder="dr.smith@memorial-health.com"
-              value={form.email}
-              onChange={e => setForm({ ...form, email: e.target.value })}
-            />
+              style={F} placeholder="dr.smith@memorial-health.com"
+              value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
           </div>
           <div>
             <label className="text-sm text-[#E9EEF5]/65 mb-1.5 block font-bold" style={F}>Password</label>
-            <input
-              type="password" required
+            <input type="password" required
               className="w-full bg-[#080C14] border border-[#1F2937] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#14B8A6] transition-colors"
-              style={F}
-              placeholder="Your password"
-              value={form.password}
-              onChange={e => setForm({ ...form, password: e.target.value })}
-            />
+              style={F} placeholder="Your password"
+              value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
           </div>
           <div className="text-right">
             <Link href="#" className="text-[#14B8A6] text-sm font-bold hover:underline" style={F}>Forgot password?</Link>
           </div>
-          <button type="submit" className="btn-teal w-full py-3.5">Sign In</button>
+          {error && <p className="text-red-400 text-sm font-semibold" style={F}>{error}</p>}
+          <button type="submit" disabled={loading}
+            className="btn-teal w-full py-3.5 disabled:opacity-60">
+            {loading ? 'Signing in...' : 'Sign In'}
+          </button>
         </form>
         <div className="mt-6 text-center space-y-2">
           <p className="text-[#E9EEF5]/45 text-sm font-semibold" style={F}>Need an account? <Link href="/signup" className="text-[#14B8A6] hover:underline">Get Started</Link></p>
