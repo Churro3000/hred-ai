@@ -1,53 +1,42 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Shield } from 'lucide-react'
-import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
-import { useAuth } from '@/context/AuthContext'
 
 const F = { fontFamily: "'Nunito', sans-serif" }
 
 export default function SignIn() {
   const router = useRouter()
-  const { user, loading } = useAuth()
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-
-  useEffect(() => {
-    if (!loading && user) {
-      router.replace('/dashboard')
-    }
-  }, [user, loading, router])
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setSubmitting(true)
+    setLoading(true)
     try {
-      await signInWithEmailAndPassword(auth, form.email, form.password)
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : ''
-      if (msg.includes('user-not-found') || msg.includes('wrong-password') || msg.includes('invalid-credential')) {
-        setError('Incorrect email or password.')
-      } else if (msg.includes('too-many-requests')) {
-        setError('Too many attempts. Please wait and try again.')
-      } else {
-        setError('Sign in failed. Please try again.')
+      const res = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error ?? 'Sign in failed.')
+        setLoading(false)
+        return
       }
-      setSubmitting(false)
+
+      router.push('/dashboard')
+    } catch {
+      setError('Sign in failed. Please try again.')
+      setLoading(false)
     }
   }
-
-  if (loading) return (
-    <div className="min-h-screen bg-radial flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin"></div>
-    </div>
-  )
-
-  if (user) return null
 
   return (
     <div className="min-h-screen bg-radial flex flex-col items-center justify-center px-4">
@@ -71,15 +60,15 @@ export default function SignIn() {
             <input type="password" required
               className="w-full bg-[#080C14] border border-[#1F2937] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#14B8A6] transition-colors"
               style={F} placeholder="Your password"
-              value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+              value={form.password} onChange={e => setForm({ ...form, email: e.target.value })} />
           </div>
           <div className="text-right">
             <Link href="#" className="text-[#14B8A6] text-sm font-bold hover:underline" style={F}>Forgot password?</Link>
           </div>
           {error && <p className="text-red-400 text-sm font-semibold" style={F}>{error}</p>}
-          <button type="submit" disabled={submitting}
+          <button type="submit" disabled={loading}
             className="btn-teal w-full py-3.5 disabled:opacity-60">
-            {submitting ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
         <div className="mt-6 text-center space-y-2">
