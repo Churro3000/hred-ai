@@ -1,9 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Shield } from 'lucide-react'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 
 const F = { fontFamily: "'Nunito', sans-serif" }
@@ -14,13 +14,21 @@ export default function SignIn() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.push('/dashboard')
+      }
+    })
+    return () => unsubscribe()
+  }, [router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
       await signInWithEmailAndPassword(auth, form.email, form.password)
-      router.push('/dashboard')
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Sign in failed.'
       if (msg.includes('user-not-found') || msg.includes('wrong-password') || msg.includes('invalid-credential')) {
@@ -30,7 +38,6 @@ export default function SignIn() {
       } else {
         setError('Sign in failed. Please try again.')
       }
-    } finally {
       setLoading(false)
     }
   }
