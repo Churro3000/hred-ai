@@ -4,8 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Shield } from 'lucide-react'
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
-import { auth, db } from '@/lib/firebase'
+import { auth } from '@/lib/firebase'
 
 const F = { fontFamily: "'Nunito', sans-serif" }
 
@@ -30,15 +29,6 @@ export default function SignUp() {
         displayName: form.email.split('@')[0],
       })
 
-      await setDoc(doc(db, 'users', user.uid), {
-        email: form.email,
-        name: form.email.split('@')[0],
-        createdAt: serverTimestamp(),
-        plan: 'free',
-        baaSigned: false,
-        auditCount: 0,
-      })
-
       router.push('/dashboard')
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Sign up failed.'
@@ -46,6 +36,8 @@ export default function SignUp() {
         setError('An account with this email already exists.')
       } else if (msg.includes('invalid-email')) {
         setError('Please enter a valid email address.')
+      } else if (msg.includes('invalid-api-key')) {
+        setError('Configuration error. Please contact support.')
       } else {
         setError('Sign up failed. Please try again.')
       }
