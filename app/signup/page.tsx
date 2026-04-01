@@ -1,58 +1,49 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Shield } from 'lucide-react'
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
-import { useAuth } from '@/context/AuthContext'
 
 const F = { fontFamily: "'Nunito', sans-serif" }
 
 export default function SignUp() {
   const router = useRouter()
-  const { user, loading } = useAuth()
   const [form, setForm] = useState({ email: '', password: '', confirm: '' })
   const [error, setError] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-
-  useEffect(() => {
-    if (!loading && user) {
-      router.replace('/dashboard')
-    }
-  }, [user, loading, router])
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     if (form.password !== form.confirm) { setError('Passwords do not match.'); return }
     if (form.password.length < 8) { setError('Password must be at least 8 characters.'); return }
-    setSubmitting(true)
+
+    setLoading(true)
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password)
-      await updateProfile(userCredential.user, {
-        displayName: form.email.split('@')[0],
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+          name: form.email.split('@')[0],
+        }),
       })
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : ''
-      if (msg.includes('email-already-in-use')) {
-        setError('An account with this email already exists.')
-      } else if (msg.includes('invalid-email')) {
-        setError('Please enter a valid email address.')
-      } else {
-        setError('Sign up failed. Please try again.')
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error ?? 'Sign up failed.')
+        setLoading(false)
+        return
       }
-      setSubmitting(false)
+
+      router.push('/dashboard')
+    } catch {
+      setError('Sign up failed. Please try again.')
+      setLoading(false)
     }
   }
-
-  if (loading) return (
-    <div className="min-h-screen bg-radial flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin"></div>
-    </div>
-  )
-
-  if (user) return null
 
   return (
     <div className="min-h-screen bg-radial flex flex-col items-center justify-center px-4">
@@ -86,9 +77,9 @@ export default function SignUp() {
               value={form.confirm} onChange={e => setForm({ ...form, confirm: e.target.value })} />
           </div>
           {error && <p className="text-red-400 text-sm font-semibold" style={F}>{error}</p>}
-          <button type="submit" disabled={submitting}
+          <button type="submit" disabled={loading}
             className="btn-teal w-full py-3.5 disabled:opacity-60">
-            {submitting ? 'Creating account...' : 'Create Account'}
+            {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
         <div className="mt-6 text-center space-y-2">
