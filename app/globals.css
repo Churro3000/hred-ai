@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #080C14;
+  color: #E9EEF5;
+  font-family: 'Nunito', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.bg-radial {
+  background: radial-gradient(ellipse at 55% 15%, #0D1F3C 0%, #080C14 65%);
+}
+
+.btn-teal {
+  background: #14B8A6;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-teal:hover {
+  box-shadow: 0 0 20px rgba(20,184,166,0.5);
+  background: #0f9e8e;
+}
+
+.btn-blue {
+  background: #14B8A6;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-blue:hover {
+  box-shadow: 0 0 20px rgba(20,184,166,0.5);
+  background: #0f9e8e;
+}
+
+.card {
+  background: #111827;
+  border: 1px solid rgba(20,184,166,0.25);
+  border-radius: 14px;
+  padding: 28px;
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid rgba(20,184,166,0.1);
+  margin: 0;
+}
+
+input, textarea, button, a, p, h1, h2, h3, h4, h5, h6, span, label, li {
+  font-family: 'Nunito', sans-serif;
+}
