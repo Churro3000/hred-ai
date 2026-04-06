@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-
-const users: Record<string, { email: string; password: string; name: string }> = {}
+import { neon } from '@neondatabase/serverless'
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,10 +8,15 @@ export async function POST(req: NextRequest) {
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password required.' }, { status: 400 })
     }
-    const user = users[email]
-    if (!user) {
+
+    const sql = neon(process.env.DATABASE_URL!)
+
+    const rows = await sql`SELECT * FROM users WHERE email = ${email}`
+    if (rows.length === 0) {
       return NextResponse.json({ error: 'Incorrect email or password.' }, { status: 401 })
     }
+
+    const user = rows[0]
     const valid = await bcrypt.compare(password, user.password)
     if (!valid) {
       return NextResponse.json({ error: 'Incorrect email or password.' }, { status: 401 })
@@ -21,7 +25,7 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json({ success: true })
     response.cookies.set('hr_session', Buffer.from(JSON.stringify({ email, name: user.name })).toString('base64'), {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
