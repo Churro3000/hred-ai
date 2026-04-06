@@ -6,11 +6,15 @@ import { Shield, Plus, Download, Eye, ChevronDown, X, AlertTriangle, CheckCircle
 
 const F = { fontFamily: "'Nunito', sans-serif" }
 
-const mockAudits = [
-  { id: '1', date: '2025-11-12', system: 'Epic MyChart Chatbot', score: 78, status: 'High Risk' },
-  { id: '2', date: '2025-11-08', system: 'Nuance DAX Scribe', score: 34, status: 'Low Risk' },
-  { id: '3', date: '2025-10-30', system: 'Custom EHR GPT Wrapper', score: 61, status: 'Medium Risk' },
-]
+interface Audit {
+  audit_id: string
+  timestamp: string
+  endpoint_url: string
+  risk_score: number
+  risk_level: string
+  total_probes: number
+  vulnerabilities_found: number
+}
 
 const riskColor = (s: string) =>
   s === 'High Risk' ? 'text-red-400' :
@@ -20,6 +24,8 @@ export default function Dashboard() {
   const router = useRouter()
   const [user, setUser] = useState<{ email: string; name: string } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [audits, setAudits] = useState<Audit[]>([])
+  const [auditsLoading, setAuditsLoading] = useState(true)
   const [showBAA, setShowBAA] = useState(false)
   const [baaSigned, setBaaSigned] = useState(false)
   const [showNewAudit, setShowNewAudit] = useState(false)
@@ -42,8 +48,15 @@ export default function Dashboard() {
         }
         setLoading(false)
       })
-      .catch(() => { router.replace('/signin') })
+      .catch(() => router.replace('/signin'))
   }, [router])
+
+  useEffect(() => {
+    fetch('/api/audits')
+      .then(res => res.ok ? res.json() : [])
+      .then(data => { setAudits(Array.isArray(data) ? data : []); setAuditsLoading(false) })
+      .catch(() => setAuditsLoading(false))
+  }, [])
 
   const handleSignOut = async () => {
     await fetch('/api/auth/signout', { method: 'POST' })
@@ -73,7 +86,6 @@ export default function Dashboard() {
       })
       const data = await res.json()
       if (!res.ok) { setAuditError(data.error || 'Audit failed.'); setIsRunning(false); return }
-      localStorage.setItem('hr_last_audit', JSON.stringify(data))
       setShowNewAudit(false)
       setIsRunning(false)
       router.push(`/dashboard/report/${data.auditId}`)
@@ -140,42 +152,58 @@ export default function Dashboard() {
 
         <h2 className="text-xl font-black text-white mb-4" style={F}>Past Audits</h2>
         <div className="card p-0 overflow-hidden mb-8">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[#374151] text-[#E9EEF5]/50">
-                <th className="text-left px-6 py-4 font-bold" style={F}>Date</th>
-                <th className="text-left px-6 py-4 font-bold" style={F}>AI System</th>
-                <th className="text-left px-6 py-4 font-bold" style={F}>Risk Score</th>
-                <th className="text-left px-6 py-4 font-bold" style={F}>Status</th>
-                <th className="text-left px-6 py-4 font-bold" style={F}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {mockAudits.map((a, i) => (
-                <tr key={a.id} className={`border-b border-[#374151]/50 hover:bg-[#374151]/20 transition-colors ${i === mockAudits.length - 1 ? 'border-0' : ''}`}>
-                  <td className="px-6 py-4 text-[#E9EEF5]/70 font-semibold" style={F}>{a.date}</td>
-                  <td className="px-6 py-4 text-white font-bold" style={F}>{a.system}</td>
-                  <td className="px-6 py-4">
-                    <span className="font-black text-white" style={F}>{a.score}</span>
-                    <span className="text-[#E9EEF5]/40 font-semibold" style={F}>/100</span>
-                  </td>
-                  <td className={`px-6 py-4 font-bold ${riskColor(a.status)}`} style={F}>{a.status}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <Link href={`/dashboard/report/${a.id}`}>
-                        <button className="flex items-center gap-1 text-[#14B8A6] hover:underline text-xs font-bold" style={F}>
-                          <Eye className="w-3 h-3" /> View
-                        </button>
-                      </Link>
-                      <button className="flex items-center gap-1 text-[#3B82F6] hover:underline text-xs font-bold" style={F}>
-                        <Download className="w-3 h-3" /> PDF
-                      </button>
-                    </div>
-                  </td>
+          {auditsLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-6 h-6 text-[#14B8A6] animate-spin" />
+            </div>
+          ) : audits.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center px-6">
+              <Shield className="w-10 h-10 text-[#14B8A6]/30 mb-3" />
+              <p className="text-white font-bold mb-1" style={F}>No audits yet</p>
+              <p className="text-[#E9EEF5]/40 text-sm font-normal" style={F}>Run your first audit to see results here.</p>
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[#374151] text-[#E9EEF5]/50">
+                  <th className="text-left px-6 py-4 font-bold" style={F}>Date</th>
+                  <th className="text-left px-6 py-4 font-bold hidden md:table-cell" style={F}>Endpoint</th>
+                  <th className="text-left px-6 py-4 font-bold" style={F}>Risk Score</th>
+                  <th className="text-left px-6 py-4 font-bold" style={F}>Status</th>
+                  <th className="text-left px-6 py-4 font-bold" style={F}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {audits.map((a, i) => (
+                  <tr key={a.audit_id} className={`border-b border-[#374151]/50 hover:bg-[#374151]/20 transition-colors ${i === audits.length - 1 ? 'border-0' : ''}`}>
+                    <td className="px-6 py-4 text-[#E9EEF5]/70 font-semibold" style={F}>
+                      {new Date(a.timestamp).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 text-[#E9EEF5]/50 font-normal text-xs hidden md:table-cell max-w-[200px] truncate" style={F}>
+                      {a.endpoint_url}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="font-black text-white" style={F}>{a.risk_score}</span>
+                      <span className="text-[#E9EEF5]/40 font-semibold" style={F}>/100</span>
+                    </td>
+                    <td className={`px-6 py-4 font-bold ${riskColor(a.risk_level)}`} style={F}>{a.risk_level}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <Link href={`/dashboard/report/${a.audit_id}`}>
+                          <button className="flex items-center gap-1 text-[#14B8A6] hover:underline text-xs font-bold" style={F}>
+                            <Eye className="w-3 h-3" /> View
+                          </button>
+                        </Link>
+                        <button className="flex items-center gap-1 text-[#3B82F6] hover:underline text-xs font-bold" style={F}>
+                          <Download className="w-3 h-3" /> PDF
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </main>
 
