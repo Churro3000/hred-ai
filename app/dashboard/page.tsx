@@ -1,9 +1,8 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Shield, Plus, Download, Eye, ChevronDown, X, AlertTriangle, CheckCircle, Clock, Loader2 } from 'lucide-react'
-import { useUser, useClerk } from '@clerk/nextjs'
 
 const F = { fontFamily: "'Nunito', sans-serif" }
 
@@ -19,8 +18,8 @@ const riskColor = (s: string) =>
 
 export default function Dashboard() {
   const router = useRouter()
-  const { user, isLoaded } = useUser()
-  const { signOut } = useClerk()
+  const [user, setUser] = useState<{ email: string; name: string } | null>(null)
+  const [loading, setLoading] = useState(true)
   const [showBAA, setShowBAA] = useState(false)
   const [baaSigned, setBaaSigned] = useState(false)
   const [showNewAudit, setShowNewAudit] = useState(false)
@@ -29,8 +28,25 @@ export default function Dashboard() {
   const [isRunning, setIsRunning] = useState(false)
   const [auditError, setAuditError] = useState('')
 
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(res => {
+        if (!res.ok) { router.replace('/signin'); return null }
+        return res.json()
+      })
+      .then(data => {
+        if (data) {
+          setUser(data)
+          const baa = localStorage.getItem(`hr_baa_${data.email}`)
+          if (baa) setBaaSigned(true)
+        }
+        setLoading(false)
+      })
+      .catch(() => { router.replace('/signin') })
+  }, [router])
+
   const handleSignOut = async () => {
-    await signOut()
+    await fetch('/api/auth/signout', { method: 'POST' })
     router.push('/')
   }
 
@@ -39,7 +55,7 @@ export default function Dashboard() {
   }
 
   const handleSignBAA = () => {
-    if (user) localStorage.setItem(`hr_baa_${user.id}`, 'true')
+    if (user) localStorage.setItem(`hr_baa_${user.email}`, 'true')
     setBaaSigned(true)
     setShowBAA(false)
     setShowNewAudit(true)
@@ -67,15 +83,13 @@ export default function Dashboard() {
     }
   }
 
-  if (!isLoaded || !user) {
-    return (
-      <div className="min-h-screen bg-radial flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-[#14B8A6] animate-spin" />
-      </div>
-    )
-  }
+  if (loading) return (
+    <div className="min-h-screen bg-radial flex items-center justify-center">
+      <Loader2 className="w-8 h-8 text-[#14B8A6] animate-spin" />
+    </div>
+  )
 
-  const userName = user.firstName ?? user.emailAddresses[0]?.emailAddress?.split('@')[0] ?? 'there'
+  if (!user) return null
 
   return (
     <div className="min-h-screen flex flex-col bg-radial">
@@ -88,9 +102,9 @@ export default function Dashboard() {
           <div className="relative">
             <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex items-center gap-2 text-[#E9EEF5] hover:text-white transition-colors">
               <div className="w-8 h-8 rounded-full bg-[#14B8A6]/20 border border-[#14B8A6]/40 flex items-center justify-center text-[#14B8A6] font-black text-sm">
-                {userName[0]?.toUpperCase()}
+                {user.name[0]?.toUpperCase()}
               </div>
-              <span className="text-sm hidden sm:block font-semibold" style={F}>{userName}</span>
+              <span className="text-sm hidden sm:block font-semibold" style={F}>{user.name}</span>
               <ChevronDown className="w-4 h-4" />
             </button>
             {dropdownOpen && (
@@ -108,7 +122,7 @@ export default function Dashboard() {
         <div className="card bg-gradient-to-r from-[#14B8A6]/10 to-transparent border-[#14B8A6]/40 mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-black text-white" style={F}>Welcome back, {userName}.</h1>
+              <h1 className="text-2xl font-black text-white" style={F}>Welcome back, {user.name}.</h1>
               <p className="text-[#E9EEF5]/60 mt-1 font-normal" style={F}>Ready to strengthen your AI compliance?</p>
             </div>
             <button onClick={handleStartAudit} className="btn-teal flex items-center gap-2 whitespace-nowrap">
