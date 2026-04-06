@@ -1,3 +1,6 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { neon } from '@neondatabase/serverless'
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ auditId: string }> }
