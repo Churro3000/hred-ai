@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Shield, Download, ArrowLeft, AlertTriangle, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 
@@ -17,6 +18,7 @@ interface AttackResult {
 interface AuditData {
   auditId: string
   timestamp: string
+  endpointUrl: string
   riskScore: number
   riskLevel: string
   totalProbes: number
@@ -33,14 +35,27 @@ const categoryColor: Record<string, string> = {
 }
 
 export default function ReportPage() {
+  const params = useParams()
+  const router = useRouter()
   const [audit, setAudit] = useState<AuditData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    const stored = localStorage.getItem('hr_last_audit')
-    if (stored) setAudit(JSON.parse(stored))
-    setLoading(false)
-  }, [])
+    const auditId = params?.auditId as string
+    if (!auditId) { setLoading(false); return }
+    fetch(`/api/audits/${auditId}`)
+      .then(res => {
+        if (res.status === 401) { router.replace('/signin'); return null }
+        if (!res.ok) { setNotFound(true); setLoading(false); return null }
+        return res.json()
+      })
+      .then(data => {
+        if (data) setAudit(data)
+        setLoading(false)
+      })
+      .catch(() => { setNotFound(true); setLoading(false) })
+  }, [params, router])
 
   if (loading) return (
     <div className="min-h-screen bg-radial flex items-center justify-center">
@@ -48,8 +63,18 @@ export default function ReportPage() {
     </div>
   )
 
-  const score = audit?.riskScore ?? 78
-  const riskLevel = audit?.riskLevel ?? 'High Risk'
+  if (notFound) return (
+    <div className="min-h-screen bg-radial flex flex-col items-center justify-center gap-4">
+      <AlertTriangle className="w-10 h-10 text-yellow-400" />
+      <p className="text-white font-black text-xl" style={F}>Audit not found</p>
+      <Link href="/dashboard">
+        <button className="btn-teal text-sm py-2 px-5">Back to Dashboard</button>
+      </Link>
+    </div>
+  )
+
+  const score = audit?.riskScore ?? 0
+  const riskLevel = audit?.riskLevel ?? 'Low Risk'
   const gaugeColor = score >= 70 ? '#ef4444' : score >= 40 ? '#eab308' : '#22c55e'
   const results = audit?.results ?? []
   const vulnCount = audit?.vulnerabilitiesFound ?? 0
@@ -76,12 +101,17 @@ export default function ReportPage() {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
           <div>
             <p className="text-[#E9EEF5]/50 text-sm mb-1 font-semibold" style={F}>
-              Audit Report · {audit ? new Date(audit.timestamp).toLocaleDateString() : 'Sample'}
+              Audit Report · {audit ? new Date(audit.timestamp).toLocaleDateString() : ''}
             </p>
             <h1 className="text-3xl font-black text-white" style={F}>HIPAA AI Security Audit</h1>
             <p className="text-[#E9EEF5]/50 text-sm mt-1 font-semibold" style={F}>
-              HHS 2026 AI Compliance Evidence · ID: {audit?.auditId ?? 'HR-SAMPLE'}
+              HHS 2026 AI Compliance Evidence · ID: {audit?.auditId}
             </p>
+            {audit?.endpointUrl && (
+              <p className="text-[#14B8A6]/70 text-xs mt-1 font-semibold truncate max-w-md" style={F}>
+                {audit.endpointUrl}
+              </p>
+            )}
           </div>
           <button className="btn-teal flex items-center gap-2 text-sm py-2 px-4">
             <Download className="w-4 h-4" /> Download PDF
@@ -131,25 +161,41 @@ export default function ReportPage() {
 
         <h2 className="text-xl font-black text-white mb-4" style={F}>Detailed Findings</h2>
         <div className="space-y-4 mb-8">
-          {results.length > 0 ? results.map((r) => (
+          {results.map((r) => (
             <div key={r.id} className="card flex items-start gap-4">
               <div className="mt-0.5 shrink-0">
-                {r.vulnerable ? <XCircle className="w-5 h-5 text-red-400" /> : <CheckCircle className="w-5 h-5 text-green-400" />}
+                {r.vulnerable
+                  ? <XCircle className="w-5 h-5 text-red-400" />
+                  : <CheckCircle className="w-5 h-5 text-green-400" />}
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-xs font-black border px-2 py-0.5 rounded-full ${categoryColor[r.category] ?? 'text-gray-400 bg-gray-400/10 border-gray-400/30'}`} style={F}>{r.category}</span>
-                  <span className={`text-xs font-black ${r.vulnerable ? 'text-red-400' : 'text-green-400'}`} style={F}>{r.vulnerable ? 'VULNERABLE' : 'PASSED'}</span>
+                  <span className={`text-xs font-black border px-2 py-0.5 rounded-full ${categoryColor[r.category] ?? 'text-gray-400 bg-gray-400/10 border-gray-400/30'}`} style={F}>
+                    {r.category}
+                  </span>
+                  <span className={`text-xs font-black ${r.vulnerable ? 'text-red-400' : 'text-green-400'}`} style={F}>
+                    {r.vulnerable ? 'VULNERABLE' : 'PASSED'}
+                  </span>
                 </div>
-                <p className="text-[#E9EEF5]/70 text-sm font-normal" style={F}>{r.reason}</p>
+                <p className="text-[#E9EEF5]/70 text-sm font-normal mb-2" style={F}>{r.reason}</p>
+                <details className="group">
+                  <summary className="text-xs text-[#14B8A6] font-bold cursor-pointer hover:underline" style={F}>
+                    View probe details
+                  </summary>
+                  <div className="mt-2 space-y-2">
+                    <div className="bg-[#080C14] rounded-lg p-3">
+                      <p className="text-xs text-[#E9EEF5]/40 font-bold mb-1" style={F}>ATTACK PROMPT</p>
+                      <p className="text-xs text-[#E9EEF5]/70 font-normal leading-relaxed" style={F}>{r.prompt}</p>
+                    </div>
+                    <div className="bg-[#080C14] rounded-lg p-3">
+                      <p className="text-xs text-[#E9EEF5]/40 font-bold mb-1" style={F}>MODEL RESPONSE</p>
+                      <p className="text-xs text-[#E9EEF5]/70 font-normal leading-relaxed" style={F}>{r.response}</p>
+                    </div>
+                  </div>
+                </details>
               </div>
             </div>
-          )) : (
-            <div className="card text-center py-8">
-              <AlertTriangle className="w-8 h-8 text-yellow-400 mx-auto mb-3" />
-              <p className="text-[#E9EEF5]/60 font-semibold" style={F}>No live audit data. Showing sample report layout.</p>
-            </div>
-          )}
+          ))}
         </div>
 
         <div className="card bg-[#14B8A6]/5 border-[#14B8A6]/30 mb-8">
@@ -167,16 +213,18 @@ export default function ReportPage() {
             <Download className="w-4 h-4" /> Download PDF Report
           </button>
           <Link href="/dashboard">
-            <button className="btn-blue text-sm py-2 px-5">Start Another Audit</button>
+            <button className="btn-teal text-sm py-2 px-5">Start Another Audit</button>
           </Link>
           <Link href="/dashboard">
-            <button className="border border-[#1F2937] text-[#E9EEF5] rounded-lg px-5 py-2 text-sm hover:border-[#14B8A6] transition-colors font-bold" style={F}>Back to Dashboard</button>
+            <button className="border border-[#1F2937] text-[#E9EEF5] rounded-lg px-5 py-2 text-sm hover:border-[#14B8A6] transition-colors font-bold" style={F}>
+              Back to Dashboard
+            </button>
           </Link>
         </div>
 
         <div className="mt-8 p-4 border border-[#14B8A6]/20 rounded-lg bg-[#14B8A6]/5 text-center">
           <p className="text-[#14B8A6] text-xs font-black tracking-widest uppercase" style={F}>
-            HipaaRed AI · HHS 2026 AI Compliance Evidence · {audit?.auditId ?? 'HR-SAMPLE'}
+            HipaaRed AI · HHS 2026 AI Compliance Evidence · {audit?.auditId}
           </p>
         </div>
       </main>
