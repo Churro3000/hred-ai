@@ -14,6 +14,7 @@ export default function SignInPage() {
       </Link>
       <SignIn
         forceRedirectUrl="/dashboard"
+        fallbackRedirectUrl="/dashboard"
         appearance={{
           elements: {
             rootBox: 'w-full max-w-md',
