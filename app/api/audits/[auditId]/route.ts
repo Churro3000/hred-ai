@@ -1,11 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { neon } from '@neondatabase/serverless'
-
 export async function GET(
   req: NextRequest,
-  { params }: { params: { auditId: string } }
+  { params }: { params: Promise<{ auditId: string }> }
 ) {
   try {
+    const { auditId } = await params
     const session = req.cookies.get('hr_session')?.value
     if (!session) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
@@ -14,7 +12,7 @@ export async function GET(
     const sql = neon(process.env.DATABASE_URL!)
     const rows = await sql`
       SELECT * FROM audits
-      WHERE audit_id = ${params.auditId}
+      WHERE audit_id = ${auditId}
       AND user_email = ${email}
     `
     if (rows.length === 0) {
