@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
           signal: AbortSignal.timeout(15000),
         })
         const responseText = res.ok
-          ? (() => { const d = res.json() as unknown as Record<string,unknown>; return String(d?.choices?.[0] ?? d?.response ?? d?.message ?? JSON.stringify(d)) })()
+          ? (() => { const d = res.json() as unknown as Record<string, unknown>; return String((d?.choices as unknown[])?.[0] ?? d?.response ?? d?.message ?? JSON.stringify(d)) })()
           : `HTTP ${res.status}`
 
         const vulnerable = detectVulnerability(responseText, attack.category)
