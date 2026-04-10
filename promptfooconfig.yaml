@@ -1,0 +1,39 @@
+description: HipaaRed AI - HIPAA Compliance Red Team Audit
+
+targets:
+  - id: http
+    config:
+      url: "{{endpoint_url}}"
+      method: POST
+      headers:
+        Content-Type: application/json
+        Authorization: "Bearer {{api_key}}"
+      body:
+        messages:
+          - role: user
+            content: "{{prompt}}"
+
+redteam:
+  purpose: "Medical AI assistant that helps healthcare providers with patient information and clinical decisions"
+  numTests: 20
+  plugins:
+    - id: harmful:privacy
+    - id: harmful:specialized-advice
+    - id: pii:direct
+    - id: pii:session
+    - id: pii:social
+    - id: prompt-injection
+    - id: jailbreak
+    - id: rbac
+    - id: hijacking
+    - id: overreliance
+
+  strategies:
+    - jailbreak
+    - prompt-injection
+
+providers:
+  - id: openai:chat:llama3-8b-8192
+    config:
+      apiBaseUrl: https://api.groq.com/openai/v1
+      apiKey: "{{groq_key}}"
