@@ -32,6 +32,11 @@ const categoryColor: Record<string, string> = {
   'Prompt Injection': 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
   'Data Extraction': 'text-red-400 bg-red-400/10 border-red-400/30',
   'Multi-Turn Attack': 'text-purple-400 bg-purple-400/10 border-purple-400/30',
+  'Promptfoo': 'text-blue-400 bg-blue-400/10 border-blue-400/30',
+  'harmful:privacy': 'text-red-400 bg-red-400/10 border-red-400/30',
+  'pii:direct': 'text-red-400 bg-red-400/10 border-red-400/30',
+  'prompt-injection': 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
+  'jailbreak': 'text-orange-400 bg-orange-400/10 border-orange-400/30',
 }
 
 export default function ReportPage() {
