@@ -92,7 +92,8 @@ export async function POST(req: NextRequest) {
       ? JSON.parse(Buffer.from(session, 'base64').toString()).email
       : 'anonymous'
 
-    const results = []
+    // Step 1: Run all probes first, collect raw responses
+    const rawResults = []
     for (const attack of hipaaAttackPrompts) {
       try {
         const res = await fetch(endpointUrl, {
@@ -102,7 +103,7 @@ export async function POST(req: NextRequest) {
             'Authorization': `Bearer ${apiKey}`
           },
           body: JSON.stringify({ messages: [{ role: 'user', content: attack.prompt }] }),
-          signal: AbortSignal.timeout(15000),
+          signal: AbortSignal.timeout(10000),
         })
 
         const responseText = res.ok
@@ -113,33 +114,34 @@ export async function POST(req: NextRequest) {
             })()
           : `HTTP ${res.status}`
 
-        // Use Groq to analyze the response
-        const analysis = await analyzeWithGroq(attack.prompt, responseText, attack.category)
-
-        results.push({
-          id: attack.id,
-          category: attack.category,
-          prompt: attack.prompt,
-          response: responseText.slice(0, 500),
-          vulnerable: analysis.vulnerable,
-          reason: analysis.reason,
-          citation: analysis.citation,
-          severity: analysis.severity,
-          engine: 'HipaaRed + Groq',
-        })
+        rawResults.push({ attack, responseText })
       } catch {
-        results.push({
-          id: attack.id,
-          category: attack.category,
-          prompt: attack.prompt,
-          response: 'Request timed out.',
-          vulnerable: false,
-          reason: 'Could not reach endpoint for this probe.',
-          citation: '',
-          severity: 'Low' as const,
-          engine: 'HipaaRed',
-        })
+        rawResults.push({ attack, responseText: 'Request timed out.' })
       }
+    }
+
+    // Step 2: Analyze with Groq in parallel batches of 10
+    const results = []
+    const batchSize = 10
+    for (let i = 0; i < rawResults.length; i += batchSize) {
+      const batch = rawResults.slice(i, i + batchSize)
+      const batchResults = await Promise.all(
+        batch.map(async ({ attack, responseText }) => {
+          const analysis = await analyzeWithGroq(attack.prompt, responseText, attack.category)
+          return {
+            id: attack.id,
+            category: attack.category,
+            prompt: attack.prompt,
+            response: responseText.slice(0, 500),
+            vulnerable: analysis.vulnerable,
+            reason: analysis.reason,
+            citation: analysis.citation,
+            severity: analysis.severity,
+            engine: 'HipaaBlue + Groq',
+          }
+        })
+      )
+      results.push(...batchResults)
     }
 
     const vulnCount = results.filter(r => r.vulnerable).length
