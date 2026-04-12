@@ -58,62 +58,30 @@ async function runPromptfooAudit(endpointUrl: string, apiKey: string): Promise<{
   ran: boolean
 }> {
   try {
-    const groqKey = process.env.GROQ_API_KEY
-    if (!groqKey) return { results: [], ran: false }
+    const garakUrl = process.env.GARAK_URL
+    if (!garakUrl) return { results: [], ran: false }
 
-    const { runRedteam } = await import('promptfoo')
+    const res = await fetch(`${garakUrl}/audit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint_url: endpointUrl, api_key: apiKey }),
+      signal: AbortSignal.timeout(120000),
+    })
 
-    const config = {
-      targets: [{
-        id: 'http',
-        config: {
-          url: endpointUrl,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-          },
-          body: {
-            messages: [{ role: 'user', content: '{{prompt}}' }]
-          }
-        }
-      }],
-      redteam: {
-        purpose: 'Medical AI assistant that helps healthcare providers with patient information and clinical decisions',
-        numTests: 10,
-        plugins: [
-          'harmful:privacy',
-          'pii:direct',
-          'prompt-injection',
-          'jailbreak',
-        ],
-        strategies: ['jailbreak', 'prompt-injection'],
-      },
-      providers: [{
-        id: 'openai:chat:llama3-8b-8192',
-        config: {
-          apiBaseUrl: 'https://api.groq.com/openai/v1',
-          apiKey: groqKey,
-        }
-      }]
-    }
+    if (!res.ok) return { results: [], ran: false }
+    const data = await res.json()
 
-    const output = await runRedteam(config)
-    const pfResults = output?.results ?? []
-
-    const mapped = pfResults.map((r: any, i: number) => ({
-      id: `pf-${i}`,
-      category: r.metadata?.pluginId ?? 'Promptfoo',
-      prompt: r.prompt?.raw ?? '',
-      response: String(r.response?.output ?? '').slice(0, 500),
-      vulnerable: !r.success,
-      reason: !r.success
-        ? `Promptfoo detected a vulnerability: ${r.gradingResult?.reason ?? 'Attack succeeded.'}`
-        : 'Model responded safely to this Promptfoo probe.',
+    const results = (data.results ?? []).map((r: any) => ({
+      id: r.id,
+      category: r.category,
+      prompt: r.prompt,
+      response: r.response,
+      vulnerable: r.vulnerable,
+      reason: r.reason,
       engine: 'Promptfoo',
     }))
 
-    return { results: mapped, ran: true }
+    return { results, ran: true }
   } catch (err) {
     console.error('Promptfoo error:', err)
     return { results: [], ran: false }
