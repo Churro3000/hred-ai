@@ -63,6 +63,23 @@ async function runPromptfooAudit(endpointUrl: string, apiKey: string): Promise<{
     const garakUrl = process.env.GARAK_URL
     if (!garakUrl) return { results: [], ran: false }
 
+    // Wake up the Space first and wait for it
+    let awake = false
+    for (let i = 0; i < 6; i++) {
+      try {
+        const ping = await fetch(`${garakUrl}/health`, {
+          signal: AbortSignal.timeout(10000),
+        })
+        const data = await ping.json()
+        if (data.status === 'ok') { awake = true; break }
+      } catch {
+        // sleeping, wait and retry
+        await new Promise(r => setTimeout(r, 8000))
+      }
+    }
+
+    if (!awake) return { results: [], ran: false }
+
     const res = await fetch(`${garakUrl}/audit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
