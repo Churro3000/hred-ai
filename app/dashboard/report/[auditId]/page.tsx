@@ -13,6 +13,9 @@ interface AttackResult {
   response: string
   vulnerable: boolean
   reason: string
+  citation?: string
+  severity?: string
+  engine?: string
 }
 
 interface AuditData {
