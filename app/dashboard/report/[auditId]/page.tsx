@@ -94,6 +94,8 @@ export default function ReportPage() {
   const vulnCount = audit?.vulnerabilitiesFound ?? 0
   const totalProbes = audit?.totalProbes ?? 0
   const passCount = totalProbes - vulnCount
+  const criticalCount = results.filter(r => r.severity === 'Critical').length
+  const highCount = results.filter(r => r.severity === 'High').length
 
   return (
     <div className="min-h-screen flex flex-col bg-radial">
@@ -151,17 +153,18 @@ export default function ReportPage() {
             <div className="flex-1">
               <h2 className="text-xl font-black text-white mb-3" style={F}>Executive Summary</h2>
               <p className="text-[#E9EEF5]/60 text-sm leading-relaxed mb-4 font-normal" style={F}>
-                HipaaRed AI completed <span className="text-white font-bold">{totalProbes} adversarial probes</span> against your medical AI system.
+                HipaaRed AI completed <span className="text-white font-bold">{totalProbes} adversarial probes</span> against your medical AI system across PHI leakage, jailbreak, prompt injection, data extraction, multi-turn attacks, HIPAA edge cases, and OWASP LLM Top 10 vectors.
                 {vulnCount > 0
-                  ? <> <span className="text-red-400 font-bold">{vulnCount} potential vulnerabilities</span> were identified.</>
+                  ? <> <span className="text-red-400 font-bold">{vulnCount} potential vulnerabilities</span> were identified by Groq-powered analysis.</>
                   : <> <span className="text-green-400 font-bold">No vulnerabilities detected.</span></>
                 }
               </p>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {[
                   { label: 'Vulnerabilities', val: String(vulnCount), color: vulnCount > 0 ? 'text-red-400' : 'text-green-400' },
                   { label: 'Probes Run', val: String(totalProbes), color: 'text-[#14B8A6]' },
                   { label: 'Passed', val: String(passCount), color: 'text-green-400' },
+                  { label: 'Critical', val: String(criticalCount), color: criticalCount > 0 ? 'text-red-400' : 'text-green-400' },
                 ].map(s => (
                   <div key={s.label} className="bg-[#080C14] rounded-lg p-3 text-center">
                     <p className={`text-2xl font-black ${s.color}`} style={F}>{s.val}</p>
@@ -173,6 +176,17 @@ export default function ReportPage() {
           </div>
         </div>
 
+        {criticalCount > 0 || highCount > 0 ? (
+          <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
+            <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
+            <p className="text-red-300 text-sm font-semibold" style={F}>
+              {criticalCount > 0 && <><span className="font-black">{criticalCount} Critical</span> {criticalCount === 1 ? 'vulnerability' : 'vulnerabilities'} detected. </>}
+              {highCount > 0 && <><span className="font-black">{highCount} High</span> severity {highCount === 1 ? 'issue' : 'issues'} found. </>}
+              Immediate remediation recommended before production deployment.
+            </p>
+          </div>
+        ) : null}
+
         <h2 className="text-xl font-black text-white mb-4" style={F}>Detailed Findings</h2>
         <div className="space-y-4 mb-8">
           {results.map((r) => (
@@ -183,15 +197,26 @@ export default function ReportPage() {
                   : <CheckCircle className="w-5 h-5 text-green-400" />}
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className={`text-xs font-black border px-2 py-0.5 rounded-full ${categoryColor[r.category] ?? 'text-gray-400 bg-gray-400/10 border-gray-400/30'}`} style={F}>
                     {r.category}
                   </span>
                   <span className={`text-xs font-black ${r.vulnerable ? 'text-red-400' : 'text-green-400'}`} style={F}>
                     {r.vulnerable ? 'VULNERABLE' : 'PASSED'}
                   </span>
+                  {r.severity && r.vulnerable && (
+                    <span className={`text-xs font-black px-2 py-0.5 rounded-full border ${
+                      r.severity === 'Critical' ? 'text-red-400 bg-red-400/10 border-red-400/30' :
+                      r.severity === 'High' ? 'text-orange-400 bg-orange-400/10 border-orange-400/30' :
+                      r.severity === 'Medium' ? 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30' :
+                      'text-gray-400 bg-gray-400/10 border-gray-400/30'
+                    }`} style={F}>{r.severity}</span>
+                  )}
                 </div>
-                <p className="text-[#E9EEF5]/70 text-sm font-normal mb-2" style={F}>{r.reason}</p>
+                <p className="text-[#E9EEF5]/70 text-sm font-normal mb-1" style={F}>{r.reason}</p>
+                {r.citation && (
+                  <p className="text-[#14B8A6] text-xs font-bold mb-2" style={F}>📋 {r.citation}</p>
+                )}
                 <details className="group">
                   <summary className="text-xs text-[#14B8A6] font-bold cursor-pointer hover:underline" style={F}>
                     View probe details
@@ -205,6 +230,9 @@ export default function ReportPage() {
                       <p className="text-xs text-[#E9EEF5]/40 font-bold mb-1" style={F}>MODEL RESPONSE</p>
                       <p className="text-xs text-[#E9EEF5]/70 font-normal leading-relaxed" style={F}>{r.response}</p>
                     </div>
+                    {r.engine && (
+                      <p className="text-xs text-[#E9EEF5]/30 font-semibold" style={F}>Analyzed by: {r.engine}</p>
+                    )}
                   </div>
                 </details>
               </div>
@@ -215,10 +243,11 @@ export default function ReportPage() {
         <div className="card bg-[#14B8A6]/5 border-[#14B8A6]/30 mb-8">
           <h2 className="text-xl font-black text-white mb-4" style={F}>Remediation Recommendations</h2>
           <ol className="space-y-3 text-sm text-[#E9EEF5]/70 list-decimal list-inside leading-relaxed font-normal" style={F}>
-            <li><span className="text-white font-bold">Implement output filtering:</span> Deploy a PHI-detection layer that scans all model outputs before returning to users.</li>
-            <li><span className="text-white font-bold">Harden system prompt:</span> Add explicit role-restriction instructions and test all persona injection variants.</li>
-            <li><span className="text-white font-bold">Suppress error verbosity:</span> Configure your API gateway to return generic errors without stack traces.</li>
-            <li><span className="text-white font-bold">Add multi-turn monitoring:</span> Implement conversation-level monitoring to detect escalating adversarial patterns.</li>
+            <li><span className="text-white font-bold">Implement output filtering (45 CFR §164.514):</span> Deploy a PHI-detection layer that scans all model outputs before returning to users.</li>
+            <li><span className="text-white font-bold">Harden system prompt (OWASP LLM01:2025):</span> Add explicit role-restriction instructions and test all persona injection variants.</li>
+            <li><span className="text-white font-bold">Suppress error verbosity (45 CFR §164.312):</span> Configure your API gateway to return generic errors without stack traces or system details.</li>
+            <li><span className="text-white font-bold">Add multi-turn monitoring (45 CFR §164.308):</span> Implement conversation-level monitoring to detect escalating adversarial patterns.</li>
+            <li><span className="text-white font-bold">Conduct staff training (45 CFR §164.530):</span> Ensure all staff interacting with AI systems are trained on HIPAA requirements.</li>
           </ol>
         </div>
 
@@ -238,7 +267,7 @@ export default function ReportPage() {
 
         <div className="mt-8 p-4 border border-[#14B8A6]/20 rounded-lg bg-[#14B8A6]/5 text-center">
           <p className="text-[#14B8A6] text-xs font-black tracking-widest uppercase" style={F}>
-            HipaaRed AI · HHS 2026 AI Compliance Evidence · {audit?.auditId}
+            HipaaRed AI · HHS 2026 AI Compliance Evidence · Powered by Groq LLM Analysis · {audit?.auditId}
           </p>
         </div>
       </main>
