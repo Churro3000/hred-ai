@@ -1,240 +1,337 @@
 import Link from 'next/link'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
-import { CheckCircle, Shield, AlertTriangle, FileText, Zap, Lock } from 'lucide-react'
+import { Shield, Zap, BarChart3, FileText, ChevronRight, Check, AlertTriangle, Lock, Globe, Code2 } from 'lucide-react'
 
-const F = { fontFamily: "'Nunito', sans-serif" }
+const F = { fontFamily: "'Syne', sans-serif" }
+const B = { fontFamily: "'Space Grotesk', sans-serif" }
 
-const features = [
-  { icon: <Shield className="w-6 h-6 text-[#14B8A6]" />, title: 'PHI Leakage Detection', desc: 'Automatically probe your medical AI to surface any patient data leaking through responses, logs, or error messages including names, DOBs, MRNs, and SSNs.' },
-  { icon: <AlertTriangle className="w-6 h-6 text-[#14B8A6]" />, title: 'Jailbreak and Prompt Injection', desc: 'Run thousands of adversarial prompts designed specifically for clinical AI environments to uncover exploitable weaknesses and bypass attempts.' },
-  { icon: <Zap className="w-6 h-6 text-[#14B8A6]" />, title: 'Multi-Turn Adversarial Simulation', desc: 'Simulate real-world attacker conversations across multiple turns to expose vulnerabilities that single-shot tests miss.' },
-  { icon: <FileText className="w-6 h-6 text-[#14B8A6]" />, title: 'Compliance Documentation', desc: 'Generate court-ready PDF evidence packages stamped for HHS 2026 AI guidelines, ready for your compliance officer.' },
-  { icon: <Lock className="w-6 h-6 text-[#14B8A6]" />, title: 'Custom Medical Attack Library', desc: 'Access 2,000+ curated attack prompts targeting EHR integrations, clinical chatbots, and AI scribes across all major platforms.' },
-]
-
-const ticks = [
-  'No Installation Required',
-  '24-Hour Automated Testing',
-  'PDF Compliance Reports with HHS Stamp',
-  'Temporary Keys, No Data Stored',
-  'Synthetic Data Option for Safe Testing',
-]
-
-const pricing = [
-  {
-    name: 'One-Time Audit',
-    price: '$1,499',
-    period: 'one time',
-    features: ['24-hour deep vulnerability scan', 'Full PHI leakage and jailbreak report', 'PDF with HHS 2026 compliance stamp', 'Remediation guidance included', 'BAA included', 'Email delivery of results'],
-    cta: 'Get Started',
-  },
-  {
-    name: 'Monthly Monitoring',
-    price: '$2,999',
-    period: '/month',
-    features: ['Continuous 24/7 automated scanning', 'Daily vulnerability alerts', 'Weekly detailed compliance reports', 'Unlimited audit runs per month', 'Priority report delivery', 'All One-Time Audit features included'],
-    cta: 'Get Started',
-  },
-  {
-    name: 'Enterprise Shield',
-    price: 'Custom',
-    period: 'quote',
-    features: ['Full EHR and AI system integration', 'Custom medical attack library', 'Dedicated compliance analyst', 'Monthly executive briefings', 'SLA-guaranteed response times', 'All Monthly Monitoring features'],
-    cta: 'Contact Us',
-  },
-]
-
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-radial">
-      <Navbar />
+    <div style={B} className="min-h-screen bg-white">
 
-      <section className="max-w-[1280px] mx-auto px-6 pt-20 pb-16 text-center">
-        <div className="inline-flex items-center gap-2 bg-[#14B8A6]/10 border border-[#14B8A6]/30 rounded-full px-4 py-1.5 mb-6">
-          <span className="w-2 h-2 rounded-full bg-[#14B8A6]"></span>
-          <span className="text-[#14B8A6] text-sm font-bold" style={F}>HHS 2026 AI Compliance Ready</span>
-        </div>
-        <h1 className="text-5xl md:text-6xl font-black text-white leading-tight mb-6" style={F}>
-          Automated AI Red Teaming<br />for <span className="text-[#14B8A6]">HIPAA Compliance</span>
-        </h1>
-        <p className="text-[#E9EEF5]/65 text-xl max-w-2xl mx-auto mb-10 font-normal" style={F}>
-          Test medical AI for PHI leakage, jailbreaks, and data extraction. Get documented evidence for 2026 HHS guidelines.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/signup">
-            <button className="btn-teal text-base px-9 py-3.5">Start Free Synthetic Audit</button>
+      {/* NAV */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
+        <div className="section flex items-center justify-between py-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-[#CC1A1A] rounded-lg flex items-center justify-center">
+              <Shield className="w-4 h-4 text-white" />
+            </div>
+            <span style={F} className="font-800 text-xl text-gray-900 font-bold">Vermelho<span className="text-[#CC1A1A]">AI</span></span>
           </Link>
-          <Link href="#pricing">
-            <button className="border border-[#14B8A6]/30 text-[#E9EEF5] rounded-lg px-9 py-3.5 font-bold hover:border-[#14B8A6] transition-colors text-base" style={F}>View Pricing</button>
-          </Link>
-        </div>
-        <p className="text-[#E9EEF5]/35 text-sm mt-4 font-semibold" style={F}>No credit card required · Synthetic data only · 1 free scan per account</p>
-      </section>
-
-      <hr className="section-divider" />
-
-      <section className="max-w-[1280px] mx-auto px-6 py-12">
-        <div className="flex flex-wrap justify-center gap-8">
-          {ticks.map((t) => (
-            <div key={t} className="flex items-center gap-2.5">
-              <CheckCircle className="w-5 h-5 text-[#14B8A6] shrink-0" />
-              <span className="text-[#E9EEF5]/85 text-base font-bold" style={F}>{t}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <hr className="section-divider" />
-
-      <section className="max-w-[1280px] mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-black text-white mb-3" style={F}>Comprehensive AI Security Testing</h2>
-          <p className="text-[#E9EEF5]/55 text-lg max-w-xl mx-auto font-normal" style={F}>Built for hospitals, clinics, and health tech teams operating under HIPAA obligations.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {features.map((f) => (
-            <div key={f.title} className="card hover:border-[#14B8A6]/50 transition-all group cursor-default">
-              <div className="w-11 h-11 rounded-xl bg-[#14B8A6]/10 flex items-center justify-center mb-4 group-hover:bg-[#14B8A6]/20 transition-colors">{f.icon}</div>
-              <h3 className="text-white font-black text-lg mb-2" style={F}>{f.title}</h3>
-              <p className="text-[#E9EEF5]/55 text-sm leading-relaxed font-normal" style={F}>{f.desc}</p>
-            </div>
-          ))}
-          <div className="card bg-[#0D1F3C]/60 border-[#14B8A6]/35 flex flex-col justify-center items-center text-center">
-            <Shield className="w-10 h-10 text-[#14B8A6] mb-3" />
-            <h3 className="text-white font-black text-lg mb-2" style={F}>HIPAA-Safe by Design</h3>
-            <p className="text-[#E9EEF5]/55 text-sm font-normal" style={F}>All API keys auto-delete after 24 hours. No PHI ever stored. BAA available for all paid plans.</p>
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#how-it-works" style={B} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">How it works</a>
+            <a href="#probes" style={B} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Probes</a>
+            <a href="#pricing" style={B} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Pricing</a>
           </div>
-        </div>
-      </section>
-
-      <hr className="section-divider" />
-
-      <section id="pricing" className="max-w-[1280px] mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-black text-white mb-3" style={F}>Simple, Transparent Pricing</h2>
-          <p className="text-[#E9EEF5]/55 text-lg font-normal" style={F}>Choose the level of protection your organization needs.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-          <div className="card flex flex-col py-10 px-8">
-            <h3 className="text-white font-black text-xl mb-1" style={F}>{pricing[0].name}</h3>
-            <div className="flex items-end gap-1 mb-6">
-              <span className="text-5xl font-black text-white" style={F}>{pricing[0].price}</span>
-              <span className="text-[#E9EEF5]/40 text-sm mb-2 font-semibold" style={F}>{pricing[0].period}</span>
-            </div>
-            <ul className="space-y-3 mb-10 flex-1">
-              {pricing[0].features.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-[#E9EEF5]/70 text-sm font-semibold" style={F}>
-                  <CheckCircle className="w-4 h-4 text-[#14B8A6] shrink-0 mt-0.5" />{f}
-                </li>
-              ))}
-            </ul>
+          <div className="flex items-center gap-3">
+            <Link href="/signin">
+              <button className="btn-outline text-sm py-2 px-4">Sign in</button>
+            </Link>
             <Link href="/signup">
-              <button className="w-full py-3.5 rounded-lg font-bold border border-[#14B8A6]/30 text-white hover:border-[#14B8A6] hover:bg-[#14B8A6]/5 transition-all" style={F}>{pricing[0].cta}</button>
+              <button className="btn-red text-sm py-2 px-4">Start free trial</button>
             </Link>
           </div>
+        </div>
+      </nav>
 
-          <div className="relative flex flex-col py-10 px-8 rounded-[14px] border border-[#14B8A6]"
-            style={{background:'linear-gradient(160deg, #0D2A2A 0%, #111827 60%)', boxShadow:'0 0 40px rgba(20,184,166,0.18), 0 0 80px rgba(20,184,166,0.07)'}}>
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#14B8A6] text-white text-xs font-black px-4 py-1 rounded-full tracking-wide" style={F}>Recommended</div>
-            <h3 className="text-white font-black text-xl mb-1" style={F}>{pricing[1].name}</h3>
-            <div className="flex items-end gap-1 mb-6">
-              <span className="text-5xl font-black text-[#14B8A6]" style={F}>{pricing[1].price}</span>
-              <span className="text-[#E9EEF5]/40 text-sm mb-2 font-semibold" style={F}>{pricing[1].period}</span>
-            </div>
-            <ul className="space-y-3 mb-10 flex-1">
-              {pricing[1].features.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-[#E9EEF5]/75 text-sm font-semibold" style={F}>
-                  <CheckCircle className="w-4 h-4 text-[#14B8A6] shrink-0 mt-0.5" />{f}
-                </li>
-              ))}
-            </ul>
-            <Link href="/signup">
-              <button className="btn-teal w-full py-3.5">{pricing[1].cta}</button>
-            </Link>
-          </div>
+      {/* HERO */}
+      <section className="pt-32 pb-24 relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, #CC1A1A 1px, transparent 0)',
+          backgroundSize: '40px 40px'
+        }} />
+        <div className="absolute top-20 right-0 w-96 h-96 bg-[#CC1A1A]/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#00A651]/5 rounded-full blur-3xl" />
 
-          <div className="relative flex flex-col py-10 px-8 rounded-[14px] border border-[#3B82F6]/40 overflow-hidden"
-            style={{background:'linear-gradient(160deg, #0D1A2E 0%, #111827 60%)'}}>
-            <div className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(135deg, rgba(59,130,246,0.07) 0%, transparent 60%)'}}></div>
-            <h3 className="text-white font-black text-xl mb-1 relative z-10" style={F}>{pricing[2].name}</h3>
-            <div className="flex items-end gap-1 mb-6 relative z-10">
-              <span className="text-5xl font-black text-[#3B82F6]" style={F}>{pricing[2].price}</span>
-              <span className="text-[#E9EEF5]/40 text-sm mb-2 font-semibold" style={F}>{pricing[2].period}</span>
+        <div className="section relative">
+          <div className="max-w-4xl">
+            <div className="badge badge-red mb-6 inline-flex">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#CC1A1A] animate-pulse" />
+              Now with 60+ adversarial probes
             </div>
-            <ul className="space-y-3 mb-10 flex-1 relative z-10">
-              {pricing[2].features.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-[#E9EEF5]/70 text-sm font-semibold" style={F}>
-                  <CheckCircle className="w-4 h-4 text-[#3B82F6] shrink-0 mt-0.5" />{f}
-                </li>
-              ))}
-            </ul>
-            <Link href="/signup" className="relative z-10">
-              <button className="w-full py-3.5 rounded-lg font-bold border border-[#3B82F6]/40 text-white hover:border-[#3B82F6] hover:bg-[#3B82F6]/10 transition-all" style={F}>{pricing[2].cta}</button>
-            </Link>
+            <h1 style={F} className="text-6xl md:text-7xl font-black text-gray-900 leading-[1.05] mb-6">
+              Red team your AI.<br />
+              <span className="text-[#CC1A1A]">Before someone else does.</span>
+            </h1>
+            <p style={B} className="text-xl text-gray-500 font-normal leading-relaxed mb-10 max-w-2xl">
+              VermelhoAI runs 60+ adversarial probes against your AI model — jailbreaks, prompt injections, data extraction, and more. Get a full security report in minutes.
+            </p>
+            <div className="flex flex-col sm:flex-row items-start gap-4">
+              <Link href="/signup">
+                <button className="btn-red text-base py-3.5 px-8">
+                  Test your AI now <ChevronRight className="w-4 h-4" />
+                </button>
+              </Link>
+              <Link href="#how-it-works">
+                <button className="btn-outline text-base py-3.5 px-8">See how it works</button>
+              </Link>
+            </div>
+            <p style={B} className="text-sm text-gray-400 mt-4 font-normal">No credit card required · Results in 5-30 minutes</p>
           </div>
         </div>
       </section>
 
-      <hr className="section-divider" />
-
-      <section className="max-w-[1280px] mx-auto px-6 py-16">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-black text-white mb-3" style={F}>Official Compliance Evidence</h2>
-          <p className="text-[#E9EEF5]/55 text-lg max-w-xl mx-auto font-normal" style={F}>Every completed audit generates a stamped PDF evidence package for your compliance records.</p>
+      {/* SOCIAL PROOF STRIP */}
+      <section className="py-6 border-y border-gray-100 bg-[#F5F5F0]">
+        <div className="section">
+          <div className="flex flex-wrap items-center gap-8 text-sm text-gray-500 font-medium">
+            <span>Trusted by AI developers building:</span>
+            <span className="flex items-center gap-2"><Code2 className="w-4 h-4 text-[#CC1A1A]" /> Chatbots</span>
+            <span className="flex items-center gap-2"><Globe className="w-4 h-4 text-[#CC1A1A]" /> Customer support AI</span>
+            <span className="flex items-center gap-2"><Lock className="w-4 h-4 text-[#CC1A1A]" /> Enterprise LLM apps</span>
+            <span className="flex items-center gap-2"><Shield className="w-4 h-4 text-[#CC1A1A]" /> Medical AI tools</span>
+            <span className="flex items-center gap-2"><Zap className="w-4 h-4 text-[#CC1A1A]" /> AI agents</span>
+          </div>
         </div>
-        <div className="flex justify-center">
-          <div className="relative max-w-lg w-full">
-            <div className="border-2 border-[#14B8A6] rounded-xl p-8 bg-[#080C14] text-center relative overflow-hidden"
-              style={{boxShadow:'inset 0 0 40px rgba(20,184,166,0.05), 0 0 30px rgba(20,184,166,0.1)'}}>
-              <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-[#14B8A6]/60 rounded-tl"></div>
-              <div className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-[#14B8A6]/60 rounded-tr"></div>
-              <div className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-[#14B8A6]/60 rounded-bl"></div>
-              <div className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-[#14B8A6]/60 rounded-br"></div>
-              <p className="text-[#14B8A6] text-xs font-black tracking-[0.25em] uppercase mb-4" style={F}>HipaaRed AI · Compliance Evidence</p>
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <Shield className="w-8 h-8 text-[#14B8A6]" />
-                <h3 className="text-white text-2xl font-black" style={F}>AI Red Teaming Completed</h3>
-              </div>
-              <p className="text-[#E9EEF5]/60 text-sm mb-6 font-normal" style={F}>Protected Health Information Risk Assessment</p>
-              <div className="border-t border-[#14B8A6]/20 pt-5 grid grid-cols-2 gap-4 text-left">
-                <div>
-                  <p className="text-[#E9EEF5]/35 text-xs uppercase tracking-wider mb-1 font-bold" style={F}>Date Issued</p>
-                  <p className="text-white text-sm font-bold" style={F}>2025-11-12</p>
-                </div>
-                <div>
-                  <p className="text-[#E9EEF5]/35 text-xs uppercase tracking-wider mb-1 font-bold" style={F}>Audit ID</p>
-                  <p className="text-white text-sm font-bold" style={F}>#HR-2025-00078</p>
-                </div>
-                <div>
-                  <p className="text-[#E9EEF5]/35 text-xs uppercase tracking-wider mb-1 font-bold" style={F}>Standard</p>
-                  <p className="text-white text-sm font-bold" style={F}>HHS 2026 AI Guidelines</p>
-                </div>
-                <div>
-                  <p className="text-[#E9EEF5]/35 text-xs uppercase tracking-wider mb-1 font-bold" style={F}>Status</p>
-                  <p className="text-[#14B8A6] text-sm font-black" style={F}>Verified</p>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section id="how-it-works" className="py-24">
+        <div className="section">
+          <div className="mb-16">
+            <div className="badge badge-gray mb-4">How it works</div>
+            <h2 style={F} className="text-4xl font-black text-gray-900 mb-4">Three steps to a security report</h2>
+            <p style={B} className="text-lg text-gray-500 font-normal max-w-xl">No complex setup. No agent installation. Just connect your AI and run.</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                step: '01',
+                icon: <Code2 className="w-6 h-6 text-[#CC1A1A]" />,
+                title: 'Connect your AI',
+                desc: 'Paste your AI endpoint URL and API key. Works with any OpenAI-compatible API, custom endpoints, or hosted models.',
+              },
+              {
+                step: '02',
+                icon: <Zap className="w-6 h-6 text-[#CC1A1A]" />,
+                title: 'We run the probes',
+                desc: '60+ adversarial probes run against your model — jailbreaks, prompt injections, data extraction attempts, roleplay attacks, and more.',
+              },
+              {
+                step: '03',
+                icon: <FileText className="w-6 h-6 text-[#CC1A1A]" />,
+                title: 'Download your report',
+                desc: 'A full security report with vulnerability findings, severity ratings, and remediation recommendations. PDF ready to share.',
+              },
+            ].map((item) => (
+              <div key={item.step} className="relative">
+                <div className="card h-full hover:border-[#CC1A1A]/30 transition-colors">
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="w-12 h-12 bg-[#FEF2F2] rounded-xl flex items-center justify-center">
+                      {item.icon}
+                    </div>
+                    <span style={F} className="text-5xl font-black text-gray-100">{item.step}</span>
+                  </div>
+                  <h3 style={F} className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
+                  <p style={B} className="text-gray-500 font-normal leading-relaxed">{item.desc}</p>
                 </div>
               </div>
-              <p className="text-[#E9EEF5]/25 text-xs mt-5 tracking-widest uppercase font-semibold" style={F}>Generated by HipaaRed AI · Automated Adversarial Testing Platform</p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PROBE CATEGORIES */}
+      <section id="probes" className="py-24 bg-[#0D0D0B]">
+        <div className="section">
+          <div className="mb-16">
+            <div className="badge badge-red mb-4">Probe library</div>
+            <h2 style={F} className="text-4xl font-black text-white mb-4">60+ probes across 6 attack categories</h2>
+            <p style={B} className="text-lg text-gray-400 font-normal max-w-xl">Built from Garak, OWASP LLM Top 10, and real-world attack patterns. New probes added every month.</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { category: 'Jailbreaks', count: '10 probes', desc: 'DAN attacks, roleplay bypasses, persona injection, token manipulation', color: '#CC1A1A' },
+              { category: 'Prompt Injection', count: '8 probes', desc: 'Goal hijacking, instruction override, delimiter attacks, system prompt extraction', color: '#DC2626' },
+              { category: 'Data Extraction', count: '8 probes', desc: 'PII leakage, credential harvesting, memory extraction, training data exposure', color: '#00A651' },
+              { category: 'OWASP LLM Top 10', count: '10 probes', desc: 'Full coverage of OWASP LLM01-LLM10 attack vectors', color: '#00A651' },
+              { category: 'Multi-Turn Attacks', count: '6 probes', desc: 'Social engineering, authority spoofing, consent manipulation', color: '#CC1A1A' },
+              { category: 'Edge Cases', count: '8 probes', desc: 'Hallucination induction, false context, boundary probing', color: '#00A651' },
+            ].map((item) => (
+              <div key={item.category} className="card-dark hover:border-gray-700 transition-colors">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 style={F} className="text-white font-bold">{item.category}</h3>
+                  <span className="badge badge-gray text-xs">{item.count}</span>
+                </div>
+                <p style={B} className="text-gray-500 text-sm font-normal leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 flex items-center gap-3 text-gray-500 text-sm" style={B}>
+            <div className="w-2 h-2 rounded-full bg-[#00A651]" />
+            10 new probes added every month — Basic: 30 probes · Pro: full library
+          </div>
+        </div>
+      </section>
+
+      {/* VS SECTION */}
+      <section className="py-24 bg-[#F5F5F0]">
+        <div className="section">
+          <div className="mb-16 text-center">
+            <div className="badge badge-gray mb-4 mx-auto">Why VermelhoAI</div>
+            <h2 style={F} className="text-4xl font-black text-gray-900 mb-4">Built for developers, not security PhDs</h2>
+            <p style={B} className="text-lg text-gray-500 font-normal">Promptfoo and Garak are powerful but complex. VermelhoAI is powerful and simple.</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {[
+              { name: 'Promptfoo', desc: 'For developers', setup: 'CLI setup required', probes: 'DIY config', price: 'Free/complex' },
+              { name: 'VermelhoAI', desc: 'For everyone', setup: 'Paste URL, click run', probes: '60+ built-in', price: '$99/month', highlight: true },
+              { name: 'Garak', desc: 'For researchers', setup: 'Python environment', probes: '3,000+ (complex)', price: 'Free/complex' },
+            ].map((item) => (
+              <div key={item.name} className={`card ${item.highlight ? 'border-[#CC1A1A] bg-[#FEF2F2]/50' : ''}`}>
+                <div className="mb-4">
+                  <h3 style={F} className={`text-xl font-bold mb-1 ${item.highlight ? 'text-[#CC1A1A]' : 'text-gray-900'}`}>{item.name}</h3>
+                  <p style={B} className="text-sm text-gray-500 font-normal">{item.desc}</p>
+                </div>
+                <div className="space-y-3 text-sm" style={B}>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Check className="w-4 h-4 text-[#00A651] shrink-0" /> {item.setup}
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Check className="w-4 h-4 text-[#00A651] shrink-0" /> {item.probes}
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Check className="w-4 h-4 text-[#00A651] shrink-0" /> {item.price}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section id="pricing" className="py-24">
+        <div className="section">
+          <div className="mb-16 text-center">
+            <div className="badge badge-gray mb-4 mx-auto">Pricing</div>
+            <h2 style={F} className="text-4xl font-black text-gray-900 mb-4">Simple, transparent pricing</h2>
+            <p style={B} className="text-lg text-gray-500 font-normal">Run as many tests as you need. Cancel anytime.</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {/* Basic */}
+            <div className="card">
+              <div className="mb-6">
+                <h3 style={F} className="text-2xl font-black text-gray-900 mb-1">Basic</h3>
+                <p style={B} className="text-gray-500 text-sm font-normal mb-4">For small AI projects and indie developers</p>
+                <div className="flex items-baseline gap-1">
+                  <span style={F} className="text-5xl font-black text-gray-900">$99</span>
+                  <span style={B} className="text-gray-400 font-normal">/month</span>
+                </div>
+              </div>
+              <div className="space-y-3 mb-8" style={B}>
+                {[
+                  '10 tests per month',
+                  '30 standard probes',
+                  'PDF security reports',
+                  'Groq-powered AI analysis',
+                  'Email support',
+                ].map(f => (
+                  <div key={f} className="flex items-center gap-3 text-sm text-gray-600">
+                    <Check className="w-4 h-4 text-[#00A651] shrink-0" /> {f}
+                  </div>
+                ))}
+              </div>
+              <Link href="/signup">
+                <button className="btn-outline w-full justify-center py-3">Get started</button>
+              </Link>
+            </div>
+
+            {/* Pro */}
+            <div className="card border-[#CC1A1A] relative overflow-hidden">
+              <div className="absolute top-4 right-4">
+                <span className="badge badge-red text-xs">Most popular</span>
+              </div>
+              <div className="mb-6">
+                <h3 style={F} className="text-2xl font-black text-gray-900 mb-1">Pro</h3>
+                <p style={B} className="text-gray-500 text-sm font-normal mb-4">For serious AI companies and teams</p>
+                <div className="flex items-baseline gap-1">
+                  <span style={F} className="text-5xl font-black text-gray-900">$299</span>
+                  <span style={B} className="text-gray-400 font-normal">/month</span>
+                </div>
+              </div>
+              <div className="space-y-3 mb-8" style={B}>
+                {[
+                  'Unlimited tests',
+                  'Full 60+ probe library',
+                  'PDF security reports',
+                  'Groq-powered AI analysis',
+                  'API access',
+                  'Custom probes',
+                  'Priority support',
+                ].map(f => (
+                  <div key={f} className="flex items-center gap-3 text-sm text-gray-600">
+                    <Check className="w-4 h-4 text-[#00A651] shrink-0" /> {f}
+                  </div>
+                ))}
+              </div>
+              <Link href="/signup">
+                <button className="btn-red w-full justify-center py-3">Get started</button>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <hr className="section-divider" />
-
-      <section className="max-w-[1280px] mx-auto px-6 py-20 text-center">
-        <h2 className="text-4xl md:text-5xl font-black text-white mb-5" style={F}>Ready to Secure Your Medical AI?</h2>
-        <p className="text-[#E9EEF5]/55 text-xl max-w-2xl mx-auto mb-10 font-normal" style={F}>
-          Start with a free limited synthetic audit. No credit card, no installation, no PHI required.
-        </p>
-        <Link href="/signup">
-          <button className="btn-teal text-base px-12 py-4">Start Free Limited Synthetic Audit</button>
-        </Link>
-        <p className="text-[#E9EEF5]/30 text-sm mt-4 font-semibold" style={F}>Synthetic data only · 1 scan per account · No PHI required</p>
+      {/* DISCLAIMER */}
+      <section className="py-12 bg-[#F5F5F0] border-t border-gray-200">
+        <div className="section">
+          <div className="flex items-start gap-4 max-w-3xl">
+            <AlertTriangle className="w-5 h-5 text-[#CC1A1A] shrink-0 mt-0.5" />
+            <div style={B}>
+              <p className="text-sm font-semibold text-gray-700 mb-1">Liability Disclaimer</p>
+              <p className="text-sm text-gray-500 font-normal leading-relaxed">
+                VermelhoAI is a testing tool that helps identify potential vulnerabilities. It does not guarantee complete security. Users are responsible for remediation of any issues found and for their overall security posture. Testing only — not a security guarantee. See our <Link href="/terms" className="text-[#CC1A1A] hover:underline">Terms of Service</Link> for full details.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <Footer />
+      {/* FOOTER */}
+      <footer className="py-12 bg-[#0D0D0B]">
+        <div className="section">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 bg-[#CC1A1A] rounded-lg flex items-center justify-center">
+                  <Shield className="w-4 h-4 text-white" />
+                </div>
+                <span style={F} className="font-bold text-xl text-white">Vermelho<span className="text-[#CC1A1A]">AI</span></span>
+              </div>
+              <p style={B} className="text-gray-500 text-sm font-normal max-w-xs">AI red teaming platform for developers. Find vulnerabilities before your users do.</p>
+            </div>
+            <div className="flex flex-wrap gap-8 text-sm" style={B}>
+              <div className="space-y-2">
+                <p className="text-gray-400 font-semibold">Product</p>
+                <div className="space-y-1">
+                  <a href="#how-it-works" className="block text-gray-600 hover:text-white transition-colors">How it works</a>
+                  <a href="#probes" className="block text-gray-600 hover:text-white transition-colors">Probe library</a>
+                  <a href="#pricing" className="block text-gray-600 hover:text-white transition-colors">Pricing</a>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-gray-400 font-semibold">Legal</p>
+                <div className="space-y-1">
+                  <Link href="/terms" className="block text-gray-600 hover:text-white transition-colors">Terms of Service</Link>
+                  <Link href="/privacy" className="block text-gray-600 hover:text-white transition-colors">Privacy Policy</Link>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-gray-400 font-semibold">Account</p>
+                <div className="space-y-1">
+                  <Link href="/signin" className="block text-gray-600 hover:text-white transition-colors">Sign in</Link>
+                  <Link href="/signup" className="block text-gray-600 hover:text-white transition-colors">Sign up</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-12 pt-6 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p style={B} className="text-gray-600 text-sm font-normal">© 2026 VermelhoAI. All rights reserved.</p>
+            <p style={B} className="text-gray-600 text-sm font-normal">vermelho = red in Portuguese 🇵🇹</p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
