@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['promptfoo'],
+  serverExternalPackages: ['@react-pdf/renderer'],
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',

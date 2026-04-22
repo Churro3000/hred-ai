@@ -1,10 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Shield, Plus, Download, Eye, ChevronDown, X, AlertTriangle, CheckCircle, Clock, Loader2 } from 'lucide-react'
-
-const F = { fontFamily: "'Nunito', sans-serif" }
+import { Shield, Plus, Download, Eye, ChevronDown, X, CheckCircle, Clock, Loader2, Target, Zap } from 'lucide-react'
 
 interface Audit {
   audit_id: string
@@ -16,9 +14,11 @@ interface Audit {
   vulnerabilities_found: number
 }
 
-const riskColor = (s: string) =>
-  s === 'High Risk' ? 'text-red-400' :
-  s === 'Medium Risk' ? 'text-yellow-400' : 'text-green-400'
+const riskBadge = (level: string) => {
+  if (level === 'High Risk')   return 'badge badge-red'
+  if (level === 'Medium Risk') return 'badge' + ' bg-yellow-50 text-yellow-700 border border-yellow-200'
+  return 'badge badge-green'
+}
 
 export default function Dashboard() {
   const router = useRouter()
@@ -26,13 +26,13 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [audits, setAudits] = useState<Audit[]>([])
   const [auditsLoading, setAuditsLoading] = useState(true)
-  const [showBAA, setShowBAA] = useState(false)
-  const [baaSigned, setBaaSigned] = useState(false)
   const [showNewAudit, setShowNewAudit] = useState(false)
   const [auditForm, setAuditForm] = useState({ url: '', apiKey: '', notes: '' })
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
   const [auditError, setAuditError] = useState('')
+  const searchParams = useSearchParams()
+  const paymentStatus = searchParams.get('payment')
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -41,11 +41,7 @@ export default function Dashboard() {
         return res.json()
       })
       .then(data => {
-        if (data) {
-          setUser(data)
-          const baa = localStorage.getItem(`hr_baa_${data.email}`)
-          if (baa) setBaaSigned(true)
-        }
+        if (data) setUser(data)
         setLoading(false)
       })
       .catch(() => router.replace('/signin'))
@@ -61,17 +57,6 @@ export default function Dashboard() {
   const handleSignOut = async () => {
     await fetch('/api/auth/signout', { method: 'POST' })
     router.push('/')
-  }
-
-  const handleStartAudit = () => {
-    if (!baaSigned) { setShowBAA(true) } else { setShowNewAudit(true) }
-  }
-
-  const handleSignBAA = () => {
-    if (user) localStorage.setItem(`hr_baa_${user.email}`, 'true')
-    setBaaSigned(true)
-    setShowBAA(false)
-    setShowNewAudit(true)
   }
 
   const handleSubmitAudit = async (e: React.FormEvent) => {
@@ -96,34 +81,50 @@ export default function Dashboard() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-radial flex items-center justify-center">
-      <Loader2 className="w-8 h-8 text-[#14B8A6] animate-spin" />
+    <div className="min-h-screen bg-[#F5F5F0] flex items-center justify-center">
+      <Loader2 className="w-8 h-8 text-[#CC1A1A] animate-spin" />
     </div>
   )
 
   if (!user) return null
 
   return (
-    <div className="min-h-screen flex flex-col bg-radial">
-      <nav className="w-full border-b border-[#14B8A6]/10 bg-[#080C14]/95 backdrop-blur sticky top-0 z-40">
+    <div className="min-h-screen bg-[#F5F5F0] flex flex-col">
+
+      {/* NAV */}
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-[#14B8A6]" />
-            <span className="font-black text-white" style={F}>HipaaRed <span className="text-[#14B8A6]">AI</span></span>
+            <div className="w-8 h-8 bg-[#CC1A1A] rounded-lg flex items-center justify-center">
+              <Shield className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-black text-xl text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+              Vermelho<span className="text-[#CC1A1A]">AI</span>
+            </span>
           </Link>
+
           <div className="relative">
-            <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex items-center gap-2 text-[#E9EEF5] hover:text-white transition-colors">
-              <div className="w-8 h-8 rounded-full bg-[#14B8A6]/20 border border-[#14B8A6]/40 flex items-center justify-center text-[#14B8A6] font-black text-sm">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+            >
+              <div className="w-8 h-8 rounded-full bg-[#FEF2F2] border border-[#CC1A1A]/20 flex items-center justify-center text-[#CC1A1A] font-black text-sm">
                 {user.name[0]?.toUpperCase()}
               </div>
-              <span className="text-sm hidden sm:block font-semibold" style={F}>{user.name}</span>
+              <span className="text-sm font-semibold hidden sm:block">{user.name}</span>
               <ChevronDown className="w-4 h-4" />
             </button>
             {dropdownOpen && (
-              <div className="absolute right-0 top-12 bg-[#111827] border border-[#374151] rounded-lg py-2 w-40 shadow-xl z-50">
-                <button onClick={handleSignOut}
-                  className="w-full text-left px-4 py-2 text-sm text-[#E9EEF5]/70 hover:text-white hover:bg-[#374151] transition-colors font-semibold"
-                  style={F}>Sign Out</button>
+              <div className="absolute right-0 top-12 bg-white border border-gray-200 rounded-lg py-2 w-44 shadow-lg z-50">
+                <div className="px-4 py-2 border-b border-gray-100">
+                  <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                >
+                  Sign out
+                </button>
               </div>
             )}
           </div>
@@ -131,70 +132,163 @@ export default function Dashboard() {
       </nav>
 
       <main className="max-w-[1280px] mx-auto px-6 py-10 w-full flex-1">
-        <div className="card bg-gradient-to-r from-[#14B8A6]/10 to-transparent border-[#14B8A6]/40 mb-8">
+
+        {/* PAYMENT STATUS BANNERS */}
+{paymentStatus === 'success' && (
+  <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+    <CheckCircle className="w-5 h-5 text-[#00A651] shrink-0" />
+    <p className="text-green-700 text-sm font-semibold">
+      Payment successful — your plan is now active. Welcome to VermelhoAI!
+    </p>
+  </div>
+)}
+{paymentStatus === 'cancelled' && (
+  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+    <Clock className="w-5 h-5 text-yellow-600 shrink-0" />
+    <p className="text-yellow-700 text-sm font-semibold">
+      Payment cancelled — no charge was made. Upgrade anytime to unlock full access.
+    </p>
+  </div>
+)}
+{paymentStatus === 'failed' && (
+  <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+    <X className="w-5 h-5 text-[#CC1A1A] shrink-0" />
+    <p className="text-red-700 text-sm font-semibold">
+      Payment failed — please try again or contact support.
+    </p>
+  </div>
+)}
+
+{/* UPGRADE BANNER */}
+{paymentStatus !== 'success' && (
+  <div className="card border-[#CC1A1A]/30 bg-[#FEF2F2]/50 mb-6">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <p className="font-bold text-gray-900 text-sm" style={{ fontFamily: 'var(--font-display)' }}>
+          You're on the free trial
+        </p>
+        <p className="text-gray-500 text-sm mt-0.5">
+          Upgrade to run unlimited tests with the full 100+ probe library.
+        </p>
+      </div>
+      <Link href="/dashboard/upgrade" className="shrink-0">
+        <button className="btn-red text-sm py-2 px-5 whitespace-nowrap flex items-center gap-2">
+          <Zap className="w-3.5 h-3.5" /> Upgrade now
+        </button>
+      </Link>
+    </div>
+  </div>
+)}
+        
+        {/* WELCOME */}
+        <div className="card mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-black text-white" style={F}>Welcome back, {user.name}.</h1>
-              <p className="text-[#E9EEF5]/60 mt-1 font-normal" style={F}>Ready to strengthen your AI compliance?</p>
+              <h1 className="text-2xl font-black text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+                Welcome back, {user.name.split('@')[0]}.
+              </h1>
+              <p className="text-gray-500 mt-1 text-sm">Ready to red team your AI?</p>
             </div>
-            <button onClick={handleStartAudit} className="btn-teal flex items-center gap-2 whitespace-nowrap">
-              <Plus className="w-4 h-4" /> Start New Audit
+            <button
+              onClick={() => setShowNewAudit(true)}
+              className="btn-red flex items-center gap-2 whitespace-nowrap"
+            >
+              <Plus className="w-4 h-4" /> Run New Test
             </button>
           </div>
         </div>
 
-        <div className="flex items-start gap-3 bg-[#111827]/60 border border-yellow-500/20 rounded-lg p-4 mb-8">
-          <AlertTriangle className="w-4 h-4 text-yellow-400 mt-0.5 shrink-0" />
-          <p className="text-[#E9EEF5]/60 text-sm font-normal" style={F}>
-            <span className="text-yellow-400 font-bold">Synthetic data only.</span> All prompts use synthetic medical data. No real PHI is ever processed or stored. All input data auto-deletes after 24 hours. PDF reports are retained for download.
-          </p>
-        </div>
+        {/* STATS ROW */}
+        {audits.length > 0 && (
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="card text-center">
+              <p className="text-3xl font-black text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+                {audits.length}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">Total audits</p>
+            </div>
+            <div className="card text-center">
+              <p className="text-3xl font-black text-[#CC1A1A]" style={{ fontFamily: 'var(--font-display)' }}>
+                {audits.filter(a => a.risk_level === 'High Risk').length}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">High risk found</p>
+            </div>
+            <div className="card text-center">
+              <p className="text-3xl font-black text-[#00A651]" style={{ fontFamily: 'var(--font-display)' }}>
+                {audits.filter(a => a.risk_level === 'Low Risk').length}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">Low risk</p>
+            </div>
+          </div>
+        )}
 
-        <h2 className="text-xl font-black text-white mb-4" style={F}>Past Audits</h2>
-        <div className="card p-0 overflow-hidden mb-8">
+        {/* AUDITS TABLE */}
+        <h2 className="text-lg font-black text-gray-900 mb-4" style={{ fontFamily: 'var(--font-display)' }}>
+          Audit history
+        </h2>
+        <div className="card p-0 overflow-hidden">
           {auditsLoading ? (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="w-6 h-6 text-[#14B8A6] animate-spin" />
+              <Loader2 className="w-6 h-6 text-[#CC1A1A] animate-spin" />
             </div>
           ) : audits.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-              <Shield className="w-10 h-10 text-[#14B8A6]/30 mb-3" />
-              <p className="text-white font-bold mb-1" style={F}>No audits yet</p>
-              <p className="text-[#E9EEF5]/40 text-sm font-normal" style={F}>Run your first audit to see results here.</p>
+              <div className="w-14 h-14 bg-[#FEF2F2] rounded-full flex items-center justify-center mb-4">
+                <Target className="w-7 h-7 text-[#CC1A1A]" />
+              </div>
+              <p className="text-gray-900 font-bold mb-1" style={{ fontFamily: 'var(--font-display)' }}>
+                No audits yet
+              </p>
+              <p className="text-gray-400 text-sm mb-4">Run your first test to see results here.</p>
+              <button onClick={() => setShowNewAudit(true)} className="btn-red text-sm py-2 px-6">
+                Run your first test
+              </button>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#374151] text-[#E9EEF5]/50">
-                  <th className="text-left px-6 py-4 font-bold" style={F}>Date</th>
-                  <th className="text-left px-6 py-4 font-bold hidden md:table-cell" style={F}>Endpoint</th>
-                  <th className="text-left px-6 py-4 font-bold" style={F}>Risk Score</th>
-                  <th className="text-left px-6 py-4 font-bold" style={F}>Status</th>
-                  <th className="text-left px-6 py-4 font-bold" style={F}>Actions</th>
+                <tr className="border-b border-gray-100 text-gray-400 text-xs uppercase tracking-wide">
+                  <th className="text-left px-6 py-4 font-semibold">Date</th>
+                  <th className="text-left px-6 py-4 font-semibold hidden md:table-cell">Endpoint</th>
+                  <th className="text-left px-6 py-4 font-semibold">Score</th>
+                  <th className="text-left px-6 py-4 font-semibold">Risk</th>
+                  <th className="text-left px-6 py-4 font-semibold">Vulns</th>
+                  <th className="text-left px-6 py-4 font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {audits.map((a, i) => (
-                  <tr key={a.audit_id} className={`border-b border-[#374151]/50 hover:bg-[#374151]/20 transition-colors ${i === audits.length - 1 ? 'border-0' : ''}`}>
-                    <td className="px-6 py-4 text-[#E9EEF5]/70 font-semibold" style={F}>
-                      {new Date(a.timestamp).toLocaleDateString()}
+                  <tr
+                    key={a.audit_id}
+                    className={`hover:bg-gray-50 transition-colors ${i < audits.length - 1 ? 'border-b border-gray-100' : ''}`}
+                  >
+                    <td className="px-6 py-4 text-gray-600 font-medium">
+                      {new Date(a.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </td>
-                    <td className="px-6 py-4 text-[#E9EEF5]/50 font-normal text-xs hidden md:table-cell max-w-[200px] truncate" style={F}>
+                    <td className="px-6 py-4 text-gray-400 text-xs hidden md:table-cell max-w-[200px] truncate">
                       {a.endpoint_url}
                     </td>
                     <td className="px-6 py-4">
-                      <span className="font-black text-white" style={F}>{a.risk_score}</span>
-                      <span className="text-[#E9EEF5]/40 font-semibold" style={F}>/100</span>
+                      <span className="font-black text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+                        {a.risk_score}
+                      </span>
+                      <span className="text-gray-400 text-xs">/100</span>
                     </td>
-                    <td className={`px-6 py-4 font-bold ${riskColor(a.risk_level)}`} style={F}>{a.risk_level}</td>
+                    <td className="px-6 py-4">
+                      <span className={riskBadge(a.risk_level)}>{a.risk_level}</span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">
+                      {a.vulnerabilities_found}
+                      <span className="text-gray-400 text-xs"> / {a.total_probes}</span>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <Link href={`/dashboard/report/${a.audit_id}`}>
-                          <button className="flex items-center gap-1 text-[#14B8A6] hover:underline text-xs font-bold" style={F}>
+                          <button className="flex items-center gap-1 text-[#CC1A1A] hover:underline text-xs font-semibold">
                             <Eye className="w-3 h-3" /> View
                           </button>
                         </Link>
-                        <button className="flex items-center gap-1 text-[#3B82F6] hover:underline text-xs font-bold" style={F}>
+                        <button className="flex items-center gap-1 text-gray-400 hover:text-gray-600 text-xs font-semibold">
                           <Download className="w-3 h-3" /> PDF
                         </button>
                       </div>
@@ -207,61 +301,92 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {showBAA && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center px-4">
-          <div className="card max-w-lg w-full relative">
-            <button onClick={() => setShowBAA(false)} className="absolute top-4 right-4 text-[#E9EEF5]/40 hover:text-white"><X className="w-5 h-5" /></button>
-            <Shield className="w-8 h-8 text-[#14B8A6] mb-3" />
-            <h2 className="text-xl font-black text-white mb-2" style={F}>Business Associate Agreement</h2>
-            <p className="text-[#E9EEF5]/60 text-sm mb-4 font-normal" style={F}>Before running audits, you must sign a BAA as required by HIPAA 45 CFR §164.308.</p>
-            <div className="bg-[#080C14] border border-[#374151] rounded-lg p-4 text-xs text-[#E9EEF5]/50 mb-6 h-40 overflow-y-auto leading-relaxed font-normal" style={F}>
-              This Business Associate Agreement is entered into between HipaaRed AI Inc. and the signing organization. HipaaRed AI agrees to: (1) not use or disclose PHI except as permitted, (2) implement appropriate safeguards, (3) report any breaches within 60 days, (4) ensure subcontractors agree to the same restrictions, (5) return or destroy all data upon termination. All testing uses synthetic data only. Input data auto-deletes after 24 hours. PDF reports containing no PHI are retained. This agreement is effective upon electronic signature.
-            </div>
-            <div className="flex items-center gap-3 mb-6">
-              <CheckCircle className="w-5 h-5 text-[#14B8A6]" />
-              <p className="text-sm text-[#E9EEF5]/70 font-semibold" style={F}>By clicking below, you electronically sign this BAA on behalf of your organization.</p>
-            </div>
-            <button onClick={handleSignBAA} className="btn-teal w-full py-3">I Agree — Sign BAA Electronically</button>
-          </div>
-        </div>
-      )}
-
+      {/* NEW AUDIT MODAL */}
       {showNewAudit && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center px-4">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
           <div className="card max-w-lg w-full relative">
-            <button onClick={() => { setShowNewAudit(false); setAuditError('') }} className="absolute top-4 right-4 text-[#E9EEF5]/40 hover:text-white"><X className="w-5 h-5" /></button>
-            <h2 className="text-xl font-black text-white mb-1" style={F}>Start New Audit</h2>
-            <p className="text-[#E9EEF5]/50 text-sm mb-6 font-normal" style={F}>Enter your medical AI endpoint. All testing uses synthetic data only.</p>
+            <button
+              onClick={() => { setShowNewAudit(false); setAuditError('') }}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 bg-[#FEF2F2] rounded-lg flex items-center justify-center">
+                <Target className="w-5 h-5 text-[#CC1A1A]" />
+              </div>
+              <h2 className="text-xl font-black text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+                New audit
+              </h2>
+            </div>
+            <p className="text-gray-500 text-sm mb-6 ml-12">
+              Enter your AI endpoint. 100+ adversarial probes will run against it.
+            </p>
+
             <form onSubmit={handleSubmitAudit} className="space-y-4">
               <div>
-                <label className="text-sm text-[#E9EEF5]/70 mb-1 block font-bold" style={F}>Medical AI Endpoint URL</label>
-                <input required type="url" placeholder="https://your-ai-system.com/api/chat"
-                  className="w-full bg-[#080C14] border border-[#1F2937] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#14B8A6] transition-colors"
-                  style={F} value={auditForm.url}
-                  onChange={e => setAuditForm({ ...auditForm, url: e.target.value })} />
+                <label className="text-sm font-semibold text-gray-700 mb-1.5 block">
+                  AI endpoint URL
+                </label>
+                <input
+                  required
+                  type="url"
+                  placeholder="https://your-ai.com/api/chat"
+                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:border-[#CC1A1A] transition-colors"
+                  value={auditForm.url}
+                  onChange={e => setAuditForm({ ...auditForm, url: e.target.value })}
+                />
               </div>
               <div>
-                <label className="text-sm text-[#E9EEF5]/70 mb-1 block font-bold" style={F}>Temporary API Key</label>
-                <input required type="password" placeholder="Your temporary API key"
-                  className="w-full bg-[#080C14] border border-[#1F2937] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#14B8A6] transition-colors"
-                  style={F} value={auditForm.apiKey}
-                  onChange={e => setAuditForm({ ...auditForm, apiKey: e.target.value })} />
-                <div className="flex items-center gap-1 mt-1">
-                  <Clock className="w-3 h-3 text-yellow-400" />
-                  <p className="text-yellow-400 text-xs font-bold" style={F}>Auto-deleted after 24 hours.</p>
+                <label className="text-sm font-semibold text-gray-700 mb-1.5 block">
+                  API key
+                </label>
+                <input
+                  required
+                  type="password"
+                  placeholder="Your API key"
+                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:border-[#CC1A1A] transition-colors"
+                  value={auditForm.apiKey}
+                  onChange={e => setAuditForm({ ...auditForm, apiKey: e.target.value })}
+                />
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  <Clock className="w-3 h-3 text-gray-400" />
+                  <p className="text-gray-400 text-xs">Keys are never stored — used only during the test.</p>
                 </div>
               </div>
               <div>
-                <label className="text-sm text-[#E9EEF5]/70 mb-1 block font-bold" style={F}>Notes (optional)</label>
-                <textarea placeholder="e.g. Epic MyChart patient portal chatbot"
-                  className="w-full bg-[#080C14] border border-[#1F2937] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#14B8A6] transition-colors resize-none h-20"
-                  style={F} value={auditForm.notes}
-                  onChange={e => setAuditForm({ ...auditForm, notes: e.target.value })} />
+                <label className="text-sm font-semibold text-gray-700 mb-1.5 block">
+                  Notes <span className="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <textarea
+                  placeholder="e.g. Customer support chatbot v2"
+                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:border-[#CC1A1A] transition-colors resize-none h-20"
+                  value={auditForm.notes}
+                  onChange={e => setAuditForm({ ...auditForm, notes: e.target.value })}
+                />
               </div>
-              {auditError && <p className="text-red-400 text-sm font-semibold" style={F}>{auditError}</p>}
-              <button type="submit" disabled={isRunning} className="btn-teal w-full py-3 flex items-center justify-center gap-2 disabled:opacity-60">
-                {isRunning ? <><Loader2 className="w-4 h-4 animate-spin" /> Running Audit...</> : 'Launch Audit'}
+
+              {auditError && (
+                <p className="text-[#CC1A1A] text-sm font-semibold">{auditError}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={isRunning}
+                className="btn-red w-full justify-center py-3.5 disabled:opacity-60"
+              >
+                {isRunning
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Running 100+ probes...</>
+                  : <><CheckCircle className="w-4 h-4" /> Launch audit</>
+                }
               </button>
+
+              {isRunning && (
+                <p className="text-center text-gray-400 text-xs">
+                  This takes 5–15 minutes. Don't close this tab.
+                </p>
+              )}
             </form>
           </div>
         </div>
