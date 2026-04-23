@@ -8,15 +8,24 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        bg: '#0B0D10',
-        surface: '#1F2937',
-        teal: '#14B8A6',
-        blue: '#3B82F6',
-        text: '#E9EEF5',
+        red: {
+          DEFAULT: '#CC1A1A',
+          dark: '#A01212',
+          light: '#E63030',
+        },
+        green: {
+          DEFAULT: '#00A651',
+          dark: '#007A3D',
+        },
       },
       fontFamily: {
-        sans: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-geist-mono)', 'monospace'],
+        display: ['var(--font-display)', 'sans-serif'],
+        body: ['var(--font-body)', 'sans-serif'],
+        sans: ['var(--font-body)', 'system-ui', 'sans-serif'],
+      },
+      borderRadius: {
+        xl: '12px',
+        '2xl': '16px',
       },
     },
   },
