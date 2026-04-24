@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { neon } from '@neondatabase/serverless'
 
 export async function POST(req: NextRequest) {
   try {
@@ -56,18 +55,21 @@ export async function POST(req: NextRequest) {
     const data = await res.json()
 
     if (!res.ok) {
-      console.error('LemonSqueezy error:', data)
-      return NextResponse.json({ error: 'Payment initialization failed' }, { status: 500 })
+      const errorDetail = data?.errors?.[0]?.detail
+        ?? data?.message
+        ?? JSON.stringify(data)
+      console.error('LemonSqueezy error:', JSON.stringify(data))
+      return NextResponse.json({ error: `Payment error: ${errorDetail}` }, { status: 500 })
     }
 
     const checkoutUrl = data?.data?.attributes?.url
     if (!checkoutUrl) {
-      return NextResponse.json({ error: 'No checkout URL returned' }, { status: 500 })
+      return NextResponse.json({ error: 'No checkout URL returned from LemonSqueezy' }, { status: 500 })
     }
 
     return NextResponse.json({ paymentUrl: checkoutUrl })
   } catch (err) {
     console.error('Payment init error:', err)
-    return NextResponse.json({ error: 'Payment failed.' }, { status: 500 })
+    return NextResponse.json({ error: `Payment failed: ${err instanceof Error ? err.message : 'Unknown error'}` }, { status: 500 })
   }
 }
