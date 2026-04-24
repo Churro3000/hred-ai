@@ -60,6 +60,7 @@ export default function ReportPage() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [activeFilter, setActiveFilter] = useState<'all' | 'vulnerable' | 'passed'>('all')
+  const [pdfLoading, setPdfLoading] = useState(false)
 
   useEffect(() => {
     const auditId = params?.auditId as string
@@ -77,6 +78,28 @@ export default function ReportPage() {
       .catch(() => { setNotFound(true); setLoading(false) })
   }, [params, router])
 
+  const handleDownloadPdf = async () => {
+    if (!audit) return
+    setPdfLoading(true)
+    try {
+      const res = await fetch(`/api/pdf/${audit.auditId}`)
+      if (!res.ok) throw new Error('PDF generation failed')
+      const blob = await res.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `vermelhoai-report-${audit.auditId}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (err) {
+      console.error('PDF download error:', err)
+    } finally {
+      setPdfLoading(false)
+    }
+  }
+
   if (loading) return (
     <div className="min-h-screen bg-[#F5F5F0] flex items-center justify-center">
       <Loader2 className="w-8 h-8 text-[#CC1A1A] animate-spin" />
@@ -86,7 +109,7 @@ export default function ReportPage() {
   if (notFound || !audit) return (
     <div className="min-h-screen bg-[#F5F5F0] flex flex-col items-center justify-center gap-4">
       <AlertTriangle className="w-10 h-10 text-[#CC1A1A]" />
-      <p className="text-gray-900 font-black text-xl" style={{ fontFamily: 'var(--font-display)' }}>
+      <p className="text-gray-900 font-bold text-xl" style={{ fontFamily: 'var(--font-display)' }}>
         Audit not found
       </p>
       <Link href="/dashboard">
@@ -112,7 +135,6 @@ export default function ReportPage() {
     return true
   })
 
-  // Group vulnerable results by category for remediation
   const vulnCategories = [...new Set(results.filter(r => r.vulnerable).map(r => r.category))]
 
   return (
@@ -122,10 +144,8 @@ export default function ReportPage() {
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#CC1A1A] rounded-lg flex items-center justify-center">
-              <Shield className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-black text-xl text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+            <Shield className="w-7 h-7 text-[#CC1A1A]" strokeWidth={2} />
+            <span className="font-bold text-lg text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
               Vermelho<span className="text-[#CC1A1A]">AI</span>
             </span>
           </Link>
@@ -145,7 +165,7 @@ export default function ReportPage() {
             <p className="text-gray-400 text-sm mb-1">
               Audit Report · {new Date(audit.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
-            <h1 className="text-3xl font-black text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+            <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
               Security Audit Report
             </h1>
             <p className="text-gray-400 text-sm mt-1">
@@ -157,18 +177,21 @@ export default function ReportPage() {
               </p>
             )}
           </div>
-          <a href={`/api/pdf/${audit.auditId}`} target="_blank" rel="noopener noreferrer">
-  <button className="btn-red flex items-center gap-2 text-sm py-2.5 px-5">
-    <Download className="w-4 h-4" /> Download PDF
-  </button>
-</a>
+          <button
+            onClick={handleDownloadPdf}
+            disabled={pdfLoading}
+            className="btn-red flex items-center gap-2 text-sm py-2.5 px-5 disabled:opacity-60"
+          >
+            {pdfLoading
+              ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating...</>
+              : <><Download className="w-4 h-4" /> Download PDF</>
+            }
+          </button>
         </div>
 
         {/* SCORE + SUMMARY */}
         <div className="card mb-6">
           <div className="flex flex-col md:flex-row items-center gap-8">
-
-            {/* Gauge */}
             <div className="flex flex-col items-center shrink-0">
               <div className="relative w-36 h-36">
                 <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
@@ -177,20 +200,19 @@ export default function ReportPage() {
                     strokeDasharray={`${(score / 100) * 264} 264`} strokeLinecap="round" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-4xl font-black text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+                  <span className="text-4xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
                     {score}
                   </span>
                   <span className="text-xs text-gray-400">/100</span>
                 </div>
               </div>
-              <p className={`font-black mt-2 text-sm ${riskTextColor}`} style={{ fontFamily: 'var(--font-display)' }}>
+              <p className={`font-bold mt-2 text-sm ${riskTextColor}`} style={{ fontFamily: 'var(--font-display)' }}>
                 {audit.riskLevel}
               </p>
             </div>
 
-            {/* Summary */}
             <div className="flex-1 w-full">
-              <h2 className="text-xl font-black text-gray-900 mb-3" style={{ fontFamily: 'var(--font-display)' }}>
+              <h2 className="text-xl font-bold text-gray-900 mb-3" style={{ fontFamily: 'var(--font-display)' }}>
                 Executive Summary
               </h2>
               <p className="text-gray-500 text-sm leading-relaxed mb-5">
@@ -205,13 +227,13 @@ export default function ReportPage() {
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  { label: 'Vulnerabilities', val: vulnCount,      color: vulnCount > 0 ? 'text-[#CC1A1A]' : 'text-[#00A651]' },
-                  { label: 'Probes run',       val: totalProbes,    color: 'text-gray-900' },
-                  { label: 'Passed',           val: passCount,      color: 'text-[#00A651]' },
-                  { label: 'Critical',         val: criticalCount,  color: criticalCount > 0 ? 'text-[#CC1A1A]' : 'text-[#00A651]' },
+                  { label: 'Vulnerabilities', val: vulnCount,     color: vulnCount > 0 ? 'text-[#CC1A1A]' : 'text-[#00A651]' },
+                  { label: 'Probes run',      val: totalProbes,   color: 'text-gray-900' },
+                  { label: 'Passed',          val: passCount,     color: 'text-[#00A651]' },
+                  { label: 'Critical',        val: criticalCount, color: criticalCount > 0 ? 'text-[#CC1A1A]' : 'text-[#00A651]' },
                 ].map(s => (
                   <div key={s.label} className="bg-[#F5F5F0] rounded-xl p-4 text-center">
-                    <p className={`text-3xl font-black ${s.color}`} style={{ fontFamily: 'var(--font-display)' }}>
+                    <p className={`text-3xl font-bold ${s.color}`} style={{ fontFamily: 'var(--font-display)' }}>
                       {s.val}
                     </p>
                     <p className="text-gray-400 text-xs mt-1">{s.label}</p>
@@ -239,7 +261,7 @@ export default function ReportPage() {
 
         {/* FINDINGS */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-black text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-lg font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
             Detailed Findings
           </h2>
           <div className="flex items-center gap-2">
@@ -276,7 +298,7 @@ export default function ReportPage() {
                       <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${catStyle.bg} ${catStyle.text} ${catStyle.border}`}>
                         {r.category}
                       </span>
-                      <span className={`text-xs font-black ${r.vulnerable ? 'text-[#CC1A1A]' : 'text-[#00A651]'}`}>
+                      <span className={`text-xs font-bold ${r.vulnerable ? 'text-[#CC1A1A]' : 'text-[#00A651]'}`}>
                         {r.vulnerable ? '● VULNERABLE' : '✓ PASSED'}
                       </span>
                       {r.severity && r.vulnerable && (
@@ -318,41 +340,20 @@ export default function ReportPage() {
 
         {/* REMEDIATION */}
         <div className="card border-[#00A651]/30 mb-8">
-          <h2 className="text-xl font-black text-gray-900 mb-4" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-xl font-bold text-gray-900 mb-4" style={{ fontFamily: 'var(--font-display)' }}>
             Remediation Recommendations
           </h2>
           <div className="space-y-3 text-sm text-gray-600 leading-relaxed">
             {[
-              {
-                title: 'Harden your system prompt',
-                body: 'Add explicit role-restriction instructions. Test all persona injection variants. Use clear, unambiguous language about what the AI should never do.',
-                ref: 'OWASP LLM01:2025',
-              },
-              {
-                title: 'Implement output filtering',
-                body: 'Deploy a detection layer that scans all model outputs for sensitive data patterns before returning responses to users.',
-                ref: 'OWASP LLM02:2025',
-              },
-              {
-                title: 'Suppress system verbosity',
-                body: 'Configure your API gateway to return generic errors without system details, model version, or internal configuration.',
-                ref: 'OWASP LLM07:2025',
-              },
-              {
-                title: 'Add conversation-level monitoring',
-                body: 'Implement monitoring to detect escalating adversarial patterns across multi-turn conversations.',
-                ref: 'OWASP LLM08:2025',
-              },
-              {
-                title: 'Restrict plugin and tool access',
-                body: 'Apply least-privilege principles to any tools or data sources your AI has access to. Audit all integrations.',
-                ref: 'OWASP LLM06:2025',
-              },
+              { title: 'Harden your system prompt', body: 'Add explicit role-restriction instructions. Test all persona injection variants. Use clear, unambiguous language about what the AI should never do.', ref: 'OWASP LLM01:2025' },
+              { title: 'Implement output filtering', body: 'Deploy a detection layer that scans all model outputs for sensitive data patterns before returning responses to users.', ref: 'OWASP LLM02:2025' },
+              { title: 'Suppress system verbosity', body: 'Configure your API gateway to return generic errors without system details, model version, or internal configuration.', ref: 'OWASP LLM07:2025' },
+              { title: 'Add conversation-level monitoring', body: 'Implement monitoring to detect escalating adversarial patterns across multi-turn conversations.', ref: 'OWASP LLM08:2025' },
+              { title: 'Restrict plugin and tool access', body: 'Apply least-privilege principles to any tools or data sources your AI has access to. Audit all integrations.', ref: 'OWASP LLM06:2025' },
             ].map((item, i) => (
-              // Only show remediation for vulnerable categories where relevant
               vulnCategories.length === 0 || i < 3 ? (
                 <div key={item.title} className="flex gap-3">
-                  <div className="w-6 h-6 rounded-full bg-[#F5F5F0] border border-gray-200 flex items-center justify-center shrink-0 text-xs font-black text-gray-500 mt-0.5">
+                  <div className="w-6 h-6 rounded-full bg-[#F5F5F0] border border-gray-200 flex items-center justify-center shrink-0 text-xs font-bold text-gray-500 mt-0.5">
                     {i + 1}
                   </div>
                   <div>
@@ -369,9 +370,21 @@ export default function ReportPage() {
 
         {/* ACTIONS */}
         <div className="flex flex-wrap gap-3 mb-8">
-          <button className="btn-red flex items-center gap-2 text-sm py-2.5 px-5">
-            <Download className="w-4 h-4" /> Download PDF report
+          <button
+            onClick={handleDownloadPdf}
+            disabled={pdfLoading}
+            className="btn-red flex items-center gap-2 text-sm py-2.5 px-5 disabled:opacity-60"
+          >
+            {pdfLoading
+              ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating...</>
+              : <><Download className="w-4 h-4" /> Download PDF report</>
+            }
           </button>
+          <a href={`/api/audits/${audit.auditId}/csv`}>
+            <button className="btn-outline text-sm py-2.5 px-5 flex items-center gap-2">
+              <Download className="w-4 h-4" /> Export CSV
+            </button>
+          </a>
           <Link href="/dashboard">
             <button className="btn-outline text-sm py-2.5 px-5 flex items-center gap-2">
               <Target className="w-4 h-4" /> Run another audit
