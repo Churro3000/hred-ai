@@ -31,8 +31,16 @@ function DashboardContent() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
   const [auditError, setAuditError] = useState('')
+  const [userPlan, setUserPlan] = useState<string>('free')
   const searchParams = useSearchParams()
   const paymentStatus = searchParams.get('payment')
+
+  useEffect(() => {
+    fetch('/api/subscription')
+      .then(res => res.json())
+      .then(data => setUserPlan(data.plan ?? 'free'))
+      .catch(() => setUserPlan('free'))
+  }, [])
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -157,8 +165,8 @@ function DashboardContent() {
           </div>
         )}
 
-        {/* UPGRADE BANNER */}
-        {paymentStatus !== 'success' && (
+        {/* UPGRADE BANNER — only show if free plan */}
+        {userPlan === 'free' && paymentStatus !== 'success' && (
           <div className="card border-[#CC1A1A]/30 bg-[#FEF2F2]/50 mb-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
@@ -174,6 +182,18 @@ function DashboardContent() {
                   <Zap className="w-3.5 h-3.5" /> Upgrade now
                 </button>
               </Link>
+            </div>
+          </div>
+        )}
+
+        {/* PLAN BADGE — show if subscribed */}
+        {userPlan !== 'free' && (
+          <div className="card border-[#00A651]/30 bg-[#F0FDF4]/50 mb-6">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="w-5 h-5 text-[#00A651] shrink-0" />
+              <p className="text-green-700 text-sm font-semibold">
+                {userPlan === 'starter' ? 'Starter Plan' : 'Professional Plan'} — active
+              </p>
             </div>
           </div>
         )}
