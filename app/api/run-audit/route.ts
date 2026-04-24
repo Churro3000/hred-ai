@@ -41,7 +41,10 @@ export async function POST(req: NextRequest) {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${apiKey}`,
           },
-          body: JSON.stringify({ messages: [{ role: 'user', content: attack.prompt }] }),
+          body: JSON.stringify({ 
+  model: 'llama-3.1-8b-instant',
+  messages: [{ role: 'user', content: attack.prompt }] 
+}),
           signal: AbortSignal.timeout(10000),
         })
 
