@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Shield, Plus, Download, Eye, ChevronDown, X, CheckCircle, Clock, Loader2, Target, Zap } from 'lucide-react'
@@ -16,11 +16,11 @@ interface Audit {
 
 const riskBadge = (level: string) => {
   if (level === 'High Risk')   return 'badge badge-red'
-  if (level === 'Medium Risk') return 'badge' + ' bg-yellow-50 text-yellow-700 border border-yellow-200'
+  if (level === 'Medium Risk') return 'badge bg-yellow-50 text-yellow-700 border border-yellow-200'
   return 'badge badge-green'
 }
 
-export default function Dashboard() {
+function DashboardContent() {
   const router = useRouter()
   const [user, setUser] = useState<{ email: string; name: string } | null>(null)
   const [loading, setLoading] = useState(true)
@@ -95,10 +95,8 @@ export default function Dashboard() {
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#CC1A1A] rounded-lg flex items-center justify-center">
-              <Shield className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-black text-xl text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+            <Shield className="w-7 h-7 text-[#CC1A1A]" strokeWidth={2} />
+            <span className="font-bold text-lg text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
               Vermelho<span className="text-[#CC1A1A]">AI</span>
             </span>
           </Link>
@@ -108,7 +106,7 @@ export default function Dashboard() {
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
             >
-              <div className="w-8 h-8 rounded-full bg-[#FEF2F2] border border-[#CC1A1A]/20 flex items-center justify-center text-[#CC1A1A] font-black text-sm">
+              <div className="w-8 h-8 rounded-full bg-[#FEF2F2] border border-[#CC1A1A]/20 flex items-center justify-center text-[#CC1A1A] font-bold text-sm">
                 {user.name[0]?.toUpperCase()}
               </div>
               <span className="text-sm font-semibold hidden sm:block">{user.name}</span>
@@ -134,57 +132,57 @@ export default function Dashboard() {
       <main className="max-w-[1280px] mx-auto px-6 py-10 w-full flex-1">
 
         {/* PAYMENT STATUS BANNERS */}
-{paymentStatus === 'success' && (
-  <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center gap-3">
-    <CheckCircle className="w-5 h-5 text-[#00A651] shrink-0" />
-    <p className="text-green-700 text-sm font-semibold">
-      Payment successful — your plan is now active. Welcome to VermelhoAI!
-    </p>
-  </div>
-)}
-{paymentStatus === 'cancelled' && (
-  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 flex items-center gap-3">
-    <Clock className="w-5 h-5 text-yellow-600 shrink-0" />
-    <p className="text-yellow-700 text-sm font-semibold">
-      Payment cancelled — no charge was made. Upgrade anytime to unlock full access.
-    </p>
-  </div>
-)}
-{paymentStatus === 'failed' && (
-  <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center gap-3">
-    <X className="w-5 h-5 text-[#CC1A1A] shrink-0" />
-    <p className="text-red-700 text-sm font-semibold">
-      Payment failed — please try again or contact support.
-    </p>
-  </div>
-)}
+        {paymentStatus === 'success' && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 text-[#00A651] shrink-0" />
+            <p className="text-green-700 text-sm font-semibold">
+              Payment successful — your plan is now active. Welcome to VermelhoAI!
+            </p>
+          </div>
+        )}
+        {paymentStatus === 'cancelled' && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+            <Clock className="w-5 h-5 text-yellow-600 shrink-0" />
+            <p className="text-yellow-700 text-sm font-semibold">
+              Payment cancelled — no charge was made. Upgrade anytime to unlock full access.
+            </p>
+          </div>
+        )}
+        {paymentStatus === 'failed' && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+            <X className="w-5 h-5 text-[#CC1A1A] shrink-0" />
+            <p className="text-red-700 text-sm font-semibold">
+              Payment failed — please try again or contact support.
+            </p>
+          </div>
+        )}
 
-{/* UPGRADE BANNER */}
-{paymentStatus !== 'success' && (
-  <div className="card border-[#CC1A1A]/30 bg-[#FEF2F2]/50 mb-6">
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <div>
-        <p className="font-bold text-gray-900 text-sm" style={{ fontFamily: 'var(--font-display)' }}>
-          You're on the free trial
-        </p>
-        <p className="text-gray-500 text-sm mt-0.5">
-          Upgrade to run unlimited tests with the full 100+ probe library.
-        </p>
-      </div>
-      <Link href="/dashboard/upgrade" className="shrink-0">
-        <button className="btn-red text-sm py-2 px-5 whitespace-nowrap flex items-center gap-2">
-          <Zap className="w-3.5 h-3.5" /> Upgrade now
-        </button>
-      </Link>
-    </div>
-  </div>
-)}
-        
+        {/* UPGRADE BANNER */}
+        {paymentStatus !== 'success' && (
+          <div className="card border-[#CC1A1A]/30 bg-[#FEF2F2]/50 mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <p className="font-bold text-gray-900 text-sm" style={{ fontFamily: 'var(--font-display)' }}>
+                  You're on the free trial
+                </p>
+                <p className="text-gray-500 text-sm mt-0.5">
+                  Upgrade to run unlimited tests with the full 100+ probe library.
+                </p>
+              </div>
+              <Link href="/dashboard/upgrade" className="shrink-0">
+                <button className="btn-red text-sm py-2 px-5 whitespace-nowrap flex items-center gap-2">
+                  <Zap className="w-3.5 h-3.5" /> Upgrade now
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* WELCOME */}
         <div className="card mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-black text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+              <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
                 Welcome back, {user.name.split('@')[0]}.
               </h1>
               <p className="text-gray-500 mt-1 text-sm">Ready to red team your AI?</p>
@@ -202,19 +200,19 @@ export default function Dashboard() {
         {audits.length > 0 && (
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="card text-center">
-              <p className="text-3xl font-black text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+              <p className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
                 {audits.length}
               </p>
               <p className="text-sm text-gray-500 mt-1">Total audits</p>
             </div>
             <div className="card text-center">
-              <p className="text-3xl font-black text-[#CC1A1A]" style={{ fontFamily: 'var(--font-display)' }}>
+              <p className="text-3xl font-bold text-[#CC1A1A]" style={{ fontFamily: 'var(--font-display)' }}>
                 {audits.filter(a => a.risk_level === 'High Risk').length}
               </p>
               <p className="text-sm text-gray-500 mt-1">High risk found</p>
             </div>
             <div className="card text-center">
-              <p className="text-3xl font-black text-[#00A651]" style={{ fontFamily: 'var(--font-display)' }}>
+              <p className="text-3xl font-bold text-[#00A651]" style={{ fontFamily: 'var(--font-display)' }}>
                 {audits.filter(a => a.risk_level === 'Low Risk').length}
               </p>
               <p className="text-sm text-gray-500 mt-1">Low risk</p>
@@ -223,7 +221,7 @@ export default function Dashboard() {
         )}
 
         {/* AUDITS TABLE */}
-        <h2 className="text-lg font-black text-gray-900 mb-4" style={{ fontFamily: 'var(--font-display)' }}>
+        <h2 className="text-lg font-bold text-gray-900 mb-4" style={{ fontFamily: 'var(--font-display)' }}>
           Audit history
         </h2>
         <div className="card p-0 overflow-hidden">
@@ -269,7 +267,7 @@ export default function Dashboard() {
                       {a.endpoint_url}
                     </td>
                     <td className="px-6 py-4">
-                      <span className="font-black text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+                      <span className="font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
                         {a.risk_score}
                       </span>
                       <span className="text-gray-400 text-xs">/100</span>
@@ -316,7 +314,7 @@ export default function Dashboard() {
               <div className="w-9 h-9 bg-[#FEF2F2] rounded-lg flex items-center justify-center">
                 <Target className="w-5 h-5 text-[#CC1A1A]" />
               </div>
-              <h2 className="text-xl font-black text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+              <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
                 New audit
               </h2>
             </div>
@@ -392,5 +390,17 @@ export default function Dashboard() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#F5F5F0] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[#CC1A1A] animate-spin" />
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   )
 }
