@@ -39,7 +39,8 @@ export async function GET(
     const date = new Date(audit.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
     const riskColor = audit.risk_score >= 70 ? [204, 26, 26] : audit.risk_score >= 40 ? [217, 119, 6] : [0, 166, 81]
 
-    const { jsPDF } = await import('jspdf')
+    const jsPDFModule = await import('jspdf')
+    const jsPDF = jsPDFModule.default
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
     const W = 210
