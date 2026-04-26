@@ -4,6 +4,9 @@ import { renderToBuffer, Document } from '@react-pdf/renderer'
 import { AuditPdfDocument } from '@/lib/pdfDocument'
 import React from 'react'
 
+export const runtime = 'nodejs'
+export const maxDuration = 30
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ auditId: string }> }
