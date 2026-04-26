@@ -2,7 +2,7 @@
 import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Shield, Plus, Download, Eye, ChevronDown, X, CheckCircle, Clock, Loader2, Target, Zap } from 'lucide-react'
+import { Shield, Plus, ChevronDown, X, CheckCircle, Clock, Loader2, Target, Zap } from 'lucide-react'
 
 interface Audit {
   audit_id: string
@@ -165,7 +165,7 @@ function DashboardContent() {
           </div>
         )}
 
-        {/* UPGRADE BANNER — only show if free plan */}
+        {/* UPGRADE BANNER */}
         {userPlan === 'free' && paymentStatus !== 'success' && (
           <div className="card border-[#CC1A1A]/30 bg-[#FEF2F2]/50 mb-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -186,7 +186,7 @@ function DashboardContent() {
           </div>
         )}
 
-        {/* PLAN BADGE — show if subscribed */}
+        {/* PLAN BADGE */}
         {userPlan !== 'free' && (
           <div className="card border-[#00A651]/30 bg-[#F0FDF4]/50 mb-6">
             <div className="flex items-center gap-3">
@@ -300,16 +300,11 @@ function DashboardContent() {
                       <span className="text-gray-400 text-xs"> / {a.total_probes}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <Link href={`/dashboard/report/${a.audit_id}`}>
-                          <button className="flex items-center gap-1 text-[#CC1A1A] hover:underline text-xs font-semibold">
-                            <Eye className="w-3 h-3" /> View
-                          </button>
-                        </Link>
-                        <button className="flex items-center gap-1 text-gray-400 hover:text-gray-600 text-xs font-semibold">
-                          <Download className="w-3 h-3" /> PDF
+                      <Link href={`/dashboard/report/${a.audit_id}`}>
+                        <button className="text-[#CC1A1A] hover:underline text-xs font-semibold">
+                          View
                         </button>
-                      </div>
+                      </Link>
                     </td>
                   </tr>
                 ))}
