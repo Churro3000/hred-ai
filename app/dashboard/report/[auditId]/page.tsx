@@ -61,6 +61,7 @@ export default function ReportPage() {
   const [notFound, setNotFound] = useState(false)
   const [activeFilter, setActiveFilter] = useState<'all' | 'vulnerable' | 'passed'>('all')
   const [pdfLoading, setPdfLoading] = useState(false)
+  const [pdfError, setPdfError] = useState('')
 
   useEffect(() => {
     const auditId = params?.auditId as string
@@ -81,10 +82,19 @@ export default function ReportPage() {
   const handleDownloadPdf = async () => {
     if (!audit) return
     setPdfLoading(true)
+    setPdfError('')
     try {
       const res = await fetch(`/api/pdf/${audit.auditId}`)
-      if (!res.ok) throw new Error('PDF generation failed')
+      if (!res.ok) {
+        const errorText = await res.text()
+        setPdfError(`Error ${res.status}: ${errorText}`)
+        return
+      }
       const blob = await res.blob()
+      if (blob.size === 0) {
+        setPdfError('PDF generated but is empty')
+        return
+      }
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -94,7 +104,7 @@ export default function ReportPage() {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
     } catch (err) {
-      console.error('PDF download error:', err)
+      setPdfError(`Failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setPdfLoading(false)
     }
@@ -125,7 +135,6 @@ export default function ReportPage() {
   const passCount = totalProbes - vulnCount
   const criticalCount = results.filter(r => r.severity === 'Critical' && r.vulnerable).length
   const highCount = results.filter(r => r.severity === 'High' && r.vulnerable).length
-
   const gaugeColor = score >= 70 ? '#CC1A1A' : score >= 40 ? '#D97706' : '#00A651'
   const riskTextColor = score >= 70 ? 'text-[#CC1A1A]' : score >= 40 ? 'text-yellow-600' : 'text-[#00A651]'
 
@@ -188,6 +197,13 @@ export default function ReportPage() {
             }
           </button>
         </div>
+
+        {/* PDF ERROR */}
+        {pdfError && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+            <p className="text-red-700 text-sm font-semibold">PDF Error: {pdfError}</p>
+          </div>
+        )}
 
         {/* SCORE + SUMMARY */}
         <div className="card mb-6">
