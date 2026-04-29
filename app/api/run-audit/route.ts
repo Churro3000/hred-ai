@@ -68,31 +68,24 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Step 2: Analyze with Groq in parallel batches of 10
-    const results = []
-    const batchSize = 10
-    for (let i = 0; i < rawResults.length; i += batchSize) {
-  if (i > 0) await new Promise(resolve => setTimeout(resolve, 2000))
-  const batch = rawResults.slice(i, i + batchSize)
-  const batchResults = await Promise.all(
-    batch.map(async ({ attack, responseText }) => {
-          const analysis = await analyzeWithGroq(attack.prompt, responseText, attack.category)
-          return {
-            id: attack.id,
-            category: attack.category,
-            prompt: attack.prompt,
-            response: responseText.slice(0, 500),
-            vulnerable: analysis.vulnerable,
-            reason: analysis.reason,
-            citation: analysis.citation,
-            severity: analysis.severity,
-            hintSeverity: attack.severity,
-            engine: 'VermelhoAI + Groq',
-          }
-        })
-      )
-      results.push(...batchResults)
-    }
+    // Step 2: Analyze with Groq sequentially with delay to avoid rate limits
+const results = []
+for (const { attack, responseText } of rawResults) {
+  const analysis = await analyzeWithGroq(attack.prompt, responseText, attack.category)
+  results.push({
+    id: attack.id,
+    category: attack.category,
+    prompt: attack.prompt,
+    response: responseText.slice(0, 500),
+    vulnerable: analysis.vulnerable,
+    reason: analysis.reason,
+    citation: analysis.citation,
+    severity: analysis.severity,
+    hintSeverity: attack.severity,
+    engine: 'VermelhoAI + Groq',
+  })
+  await new Promise(resolve => setTimeout(resolve, 500))
+}
 
     const vulnCount = results.filter(r => r.vulnerable).length
     const riskScore = Math.round((vulnCount / results.length) * 100)
