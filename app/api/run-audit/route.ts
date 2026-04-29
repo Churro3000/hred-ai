@@ -72,9 +72,10 @@ export async function POST(req: NextRequest) {
     const results = []
     const batchSize = 10
     for (let i = 0; i < rawResults.length; i += batchSize) {
-      const batch = rawResults.slice(i, i + batchSize)
-      const batchResults = await Promise.all(
-        batch.map(async ({ attack, responseText }) => {
+  if (i > 0) await new Promise(resolve => setTimeout(resolve, 2000))
+  const batch = rawResults.slice(i, i + batchSize)
+  const batchResults = await Promise.all(
+    batch.map(async ({ attack, responseText }) => {
           const analysis = await analyzeWithGroq(attack.prompt, responseText, attack.category)
           return {
             id: attack.id,
