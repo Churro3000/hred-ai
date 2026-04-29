@@ -84,7 +84,7 @@ for (const { attack, responseText } of rawResults) {
     hintSeverity: attack.severity,
     engine: 'VermelhoAI + Groq',
   })
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 2000))
 }
 
     const vulnCount = results.filter(r => r.vulnerable).length
