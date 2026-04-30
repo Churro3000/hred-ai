@@ -126,16 +126,16 @@ function DashboardContent() {
                   <p className="text-xs text-gray-400 truncate">{user.email}</p>
                 </div>
                 <Link href="/dashboard/settings">
-  <button className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">
-    Settings
-  </button>
-</Link>
-<button
-  onClick={handleSignOut}
-  className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
->
-  Sign out
-</button>
+                  <button className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">
+                    Settings
+                  </button>
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                >
+                  Sign out
+                </button>
               </div>
             )}
           </div>
